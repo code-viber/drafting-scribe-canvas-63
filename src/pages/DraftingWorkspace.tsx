@@ -365,9 +365,9 @@ Date:                                    Date:`;
     typingPositions
       .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
       .forEach(cursor => {
-        const cursorElement = `<span class="inline-flex items-center animate-pulse">
-          <span class="w-0.5 h-5 bg-blue-500 animate-pulse mr-2"></span>
-          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-medium">
+        const cursorElement = `<span class="inline-flex items-center">
+          <span class="w-0.5 h-4 bg-blue-500 animate-pulse mr-1"></span>
+          <span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-xs font-medium border border-blue-200">
             ${cursor.agent.avatar} ${cursor.agent.name}
           </span>
         </span>`;
