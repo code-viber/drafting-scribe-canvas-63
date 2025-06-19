@@ -38,6 +38,7 @@ const DraftingWorkspace = () => {
   const [selectedReference, setSelectedReference] = useState(null);
   const [editingSection, setEditingSection] = useState(null);
   const [followingCursors, setFollowingCursors] = useState(false);
+  const [showBlinkingCursors, setShowBlinkingCursors] = useState(true);
   const [typingPositions, setTypingPositions] = useState([]);
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -87,6 +88,8 @@ const DraftingWorkspace = () => {
   };
 
   const simulateAgentCursor = (agentId, position) => {
+    if (!showBlinkingCursors) return;
+    
     const agent = agents.find(a => a.id === agentId);
     if (!agent) return;
 
@@ -361,22 +364,24 @@ Date:                                    Date:`;
 
     let documentWithCursors = currentDocument;
     
-    // Insert cursors at typing positions
-    typingPositions
-      .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
-      .forEach(cursor => {
-        const cursorElement = `<span class="inline-flex items-center">
-          <span class="w-0.5 h-4 bg-blue-500 animate-pulse mr-1"></span>
-          <span class="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-xs font-medium border border-blue-200">
-            ${cursor.agent.avatar} ${cursor.agent.name}
-          </span>
-        </span>`;
-        
-        documentWithCursors = 
-          documentWithCursors.slice(0, cursor.position) +
-          cursorElement +
-          documentWithCursors.slice(cursor.position);
-      });
+    // Insert cursors at typing positions only if enabled
+    if (showBlinkingCursors) {
+      typingPositions
+        .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
+        .forEach(cursor => {
+          const cursorElement = `<span class="inline-flex items-center">
+            <span class="w-px h-3 bg-blue-500 animate-pulse mr-1"></span>
+            <span class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded text-xs font-medium border border-blue-200 text-[10px] leading-tight">
+              ${cursor.agent.avatar}
+            </span>
+          </span>`;
+          
+          documentWithCursors = 
+            documentWithCursors.slice(0, cursor.position) +
+            cursorElement +
+            documentWithCursors.slice(cursor.position);
+        });
+    }
 
     return <div dangerouslySetInnerHTML={{ __html: documentWithCursors.replace(/\n/g, '<br />') }} />;
   };
@@ -422,6 +427,19 @@ Date:                                    Date:`;
                     id="following-cursors"
                     checked={followingCursors}
                     onCheckedChange={setFollowingCursors}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="blinking-cursors">Show Blinking Cursors</Label>
+                    <div className="text-sm text-gray-500">
+                      Display blinking cursors when agents are typing
+                    </div>
+                  </div>
+                  <Switch
+                    id="blinking-cursors"
+                    checked={showBlinkingCursors}
+                    onCheckedChange={setShowBlinkingCursors}
                   />
                 </div>
               </div>
@@ -561,7 +579,7 @@ Date:                                    Date:`;
           
           <ScrollArea className="flex-1">
             {/* Agent Cursors Panel - shows active cursors when following mode is enabled */}
-            {followingCursors && typingPositions.length > 0 && (
+            {followingCursors && typingPositions.length > 0 && showBlinkingCursors && (
               <div className="p-4 border-b border-gray-100">
                 <h4 className="font-semibold text-gray-900 mb-3">Active Agent Cursors</h4>
                 <div className="space-y-2">
@@ -570,7 +588,7 @@ Date:                                    Date:`;
                       <span className="text-sm">{cursor.agent?.avatar}</span>
                       <span className="text-sm font-medium text-gray-700">{cursor.agent?.name}</span>
                       <span className="text-xs text-gray-500">Position {cursor.position}</span>
-                      <div className="w-1 h-3 bg-blue-500 animate-pulse ml-auto"></div>
+                      <div className="w-0.5 h-3 bg-blue-500 animate-pulse ml-auto"></div>
                     </div>
                   ))}
                 </div>
