@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -369,10 +370,11 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center">
-            <span class="w-px h-3 bg-blue-500 animate-pulse mr-1"></span>
-            <span class="bg-blue-50 text-blue-700 px-1 py-0.5 rounded text-xs font-medium border border-blue-200 text-[10px] leading-tight">
-              ${cursor.agent.avatar}
+          const cursorElement = `<span class="inline-flex items-center gap-1">
+            <span class="w-0.5 h-3 bg-blue-500 animate-pulse"></span>
+            <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-md text-xs font-medium flex items-center gap-1 whitespace-nowrap">
+              <span class="text-xs">${cursor.agent.avatar}</span>
+              <span class="text-xs">${cursor.agent.name.split(' ')[0]}</span>
             </span>
           </span>`;
           
