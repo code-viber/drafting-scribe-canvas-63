@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle } from 'lucide-react';
+import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const DraftingWorkspace = () => {
   const [messages, setMessages] = useState([
@@ -41,6 +41,10 @@ const DraftingWorkspace = () => {
   const [followingCursors, setFollowingCursors] = useState(false);
   const [showBlinkingCursors, setShowBlinkingCursors] = useState(true);
   const [typingPositions, setTypingPositions] = useState([]);
+  const [uploadedDocument, setUploadedDocument] = useState(null);
+  const [showUploadOption, setShowUploadOption] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [exportEmail, setExportEmail] = useState('');
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -53,7 +57,8 @@ const DraftingWorkspace = () => {
   ];
 
   const conversationFlow = {
-    'document-type': { next: 'party-a', prompt: "Perfect! Now, could you please provide the name of the first party (Company/Individual A)?" },
+    'document-type': { next: 'upload-question', prompt: "Perfect! Would you like to upload any existing document related to this draft to help me understand your requirements better? (Yes/No)" },
+    'upload-question': { next: 'party-a', prompt: "Thank you! Now, could you please provide the name of the first party (Company/Individual A)?" },
     'party-a': { next: 'party-b', prompt: "Thank you! Now, what's the name of the second party (Company/Individual B)?" },
     'party-b': { next: 'jurisdiction', prompt: "Great! In which state or jurisdiction will this agreement be governed?" },
     'jurisdiction': { next: 'effective-date', prompt: "Excellent! What should be the effective date of this agreement? (e.g., today's date, specific future date)" },
@@ -276,6 +281,58 @@ Date:                                    Date:`;
     addToAuditTrail('document_completed', 'System', 'Full document generation completed');
   };
 
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setUploadedDocument(file);
+      const aiResponse = {
+        id: Date.now(),
+        type: 'ai',
+        content: `Great! I've received your document "${file.name}". I'll analyze it and incorporate relevant information into the draft. Now, could you please provide the name of the first party (Company/Individual A)?`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setConversationStage('party-a');
+      setShowUploadOption(false);
+      addToAuditTrail('document_uploaded', 'User', `Uploaded document: ${file.name}`);
+    }
+  };
+
+  const handleDownloadDocument = () => {
+    if (!currentDocument) return;
+    
+    const element = document.createElement('a');
+    const file = new Blob([currentDocument], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${documentData.documentType}_${documentData.partyA}_${documentData.partyB}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    addToAuditTrail('document_downloaded', 'User', 'Document downloaded');
+  };
+
+  const handleEmailShare = () => {
+    if (!exportEmail || !currentDocument) return;
+    
+    // Simulate email sending (in real app, this would call an API)
+    console.log(`Sending document to: ${exportEmail}`);
+    addToAuditTrail('document_shared', 'User', `Document shared via email to: ${exportEmail}`);
+    
+    // Reset and close dialog
+    setExportEmail('');
+    setShowExportDialog(false);
+    
+    // Show confirmation message
+    const confirmationMessage = {
+      id: Date.now(),
+      type: 'ai',
+      content: `Document has been successfully shared to ${exportEmail}!`,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, confirmationMessage]);
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -293,6 +350,30 @@ Date:                                    Date:`;
     // Update document data based on conversation stage
     if (conversationStage === 'document-type') {
       updateDocumentData('documentType', currentInput);
+    } else if (conversationStage === 'upload-question') {
+      const wantsUpload = currentInput.toLowerCase().includes('yes');
+      if (wantsUpload) {
+        setShowUploadOption(true);
+        const aiResponse = {
+          id: Date.now() + 1,
+          type: 'ai',
+          content: "Perfect! Please use the upload button below to share your document with me.",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        return;
+      } else {
+        // Continue with normal flow
+        const aiResponse = {
+          id: Date.now() + 1,
+          type: 'ai',
+          content: "No problem! Let's continue with the information gathering. Could you please provide the name of the first party (Company/Individual A)?",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setConversationStage('party-a');
+        return;
+      }
     } else if (conversationStage === 'party-a') {
       updateDocumentData('partyA', currentInput);
     } else if (conversationStage === 'party-b') {
@@ -400,10 +481,44 @@ Date:                                    Date:`;
           <div className="text-sm text-gray-500">Matter: Johnson v. Smith Contract Review</div>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm">
-            <FileText className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FileText className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Export Document</DialogTitle>
+                <DialogDescription>
+                  Download your document or share it via email
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter recipient email"
+                    value={exportEmail}
+                    onChange={(e) => setExportEmail(e.target.value)}
+                  />
+                </div>
+                <div className="flex space-x-2">
+                  <Button onClick={handleEmailShare} className="flex-1" disabled={!exportEmail}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Share via Email
+                  </Button>
+                  <Button onClick={handleDownloadDocument} variant="outline" className="flex-1">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm">
@@ -484,6 +599,23 @@ Date:                                    Date:`;
                   </div>
                 </div>
               ))}
+              
+              {showUploadOption && (
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <Button className="flex items-center space-x-2">
+                      <Upload className="h-4 w-4" />
+                      <span>Upload Document</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             <div ref={messagesEndRef} />
           </ScrollArea>
