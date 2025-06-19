@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -83,10 +82,18 @@ const DraftingWorkspace = () => {
     addToAuditTrail('data_update', 'System', `Updated ${key} to: ${value}`);
   };
 
-  const simulateAgentCursor = (agentId, position) => {
+  const simulateAgentCursor = (agentId, sectionIndex) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return;
+
     setAgentCursors(prev => [
       ...prev.filter(cursor => cursor.agentId !== agentId),
-      { agentId, position, timestamp: Date.now() }
+      { 
+        agentId, 
+        sectionIndex, 
+        agent: agent,
+        timestamp: Date.now() 
+      }
     ]);
     
     setTimeout(() => {
@@ -218,15 +225,15 @@ Date:                                    Date:`;
       const section = sections[i];
       const agentId = ['drafting', 'compliance', 'research', 'validation', 'risk'][i % 5];
       
+      // Show agent cursor at current section
+      simulateAgentCursor(agentId, i);
+      
       // Update agent activity
       setAgentActivities(prev => prev.map(activity => 
         activity.agent === agents.find(a => a.id === agentId)?.name 
           ? { ...activity, activity: `Working on section ${i + 1}`, status: 'active' }
           : activity
       ));
-      
-      // Show agent cursor
-      simulateAgentCursor(agentId, currentContent.length);
       
       // Type out the section
       for (let j = 0; j <= section.length; j++) {
@@ -431,14 +438,11 @@ Date:                                    Date:`;
                     </Badge>
                   );
                 })}
-                {agentCursors.map(cursor => {
-                  const agent = agents.find(a => a.id === cursor.agentId);
-                  return (
-                    <Badge key={cursor.agentId} variant="outline" className="animate-pulse text-xs">
-                      {agent?.avatar} Active
-                    </Badge>
-                  );
-                })}
+                {agentCursors.map(cursor => (
+                  <Badge key={cursor.agentId} variant="outline" className="animate-pulse text-xs">
+                    {cursor.agent?.avatar} {cursor.agent?.name}
+                  </Badge>
+                ))}
               </div>
             </div>
           </div>
@@ -453,8 +457,16 @@ Date:                                    Date:`;
                 <div className="whitespace-pre-wrap relative">
                   {currentDocument.split('\n\n').map((section, index) => (
                     <div key={index} className="mb-4 group relative">
-                      <div className="hover:bg-blue-50 p-2 rounded cursor-pointer" onClick={() => handleSectionEdit(section)}>
+                      <div className="hover:bg-blue-50 p-2 rounded cursor-pointer relative" onClick={() => handleSectionEdit(section)}>
                         {section}
+                        {/* Agent Cursor Display */}
+                        {agentCursors.filter(cursor => cursor.sectionIndex === index).map(cursor => (
+                          <div key={cursor.agentId} className="absolute -right-2 top-0 flex items-center space-x-1 bg-white border border-gray-300 rounded-md px-2 py-1 shadow-sm">
+                            <span className="text-xs">{cursor.agent?.avatar}</span>
+                            <span className="text-xs font-medium text-gray-700">{cursor.agent?.name}</span>
+                            <div className="w-2 h-4 bg-blue-500 animate-pulse"></div>
+                          </div>
+                        ))}
                       </div>
                       <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button size="sm" variant="ghost" onClick={() => handleSectionEdit(section)}>
