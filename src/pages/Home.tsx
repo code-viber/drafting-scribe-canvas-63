@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Edit3, FileText, Vault, Workflow, Send, Download, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,37 +10,65 @@ import { Badge } from '@/components/ui/badge';
 const Home = () => {
   const navigate = useNavigate();
   const [inputPrompt, setInputPrompt] = useState('');
-  
-  // Mock generated documents data
-  const [documents] = useState([
-    {
-      id: 1,
-      title: 'Software Development NDA',
-      summary: 'Non-disclosure agreement for software development services between TechCorp and DevStudio...',
-      parties: 'TechCorp, DevStudio',
-      jurisdiction: 'California',
-      date: '2024-01-15',
-      status: 'Draft'
-    },
-    {
-      id: 2,
-      title: 'Service Agreement - Marketing',
-      summary: 'Comprehensive service agreement outlining marketing services, deliverables, and payment terms...',
-      parties: 'Marketing Inc, ClientCorp',
-      jurisdiction: 'New York',
-      date: '2024-01-12',
-      status: 'Review'
-    },
-    {
-      id: 3,
-      title: 'Employment Contract',
-      summary: 'Standard employment contract with competitive compensation package and comprehensive benefits...',
-      parties: 'ABC Company, John Doe',
-      jurisdiction: 'Texas',
-      date: '2024-01-10',
-      status: 'Final'
-    }
-  ]);
+  const [documents, setDocuments] = useState([]);
+
+  // Load saved documents from localStorage
+  useEffect(() => {
+    const loadSavedDocuments = () => {
+      const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
+      // Merge with mock data for demonstration
+      const mockDocuments = [
+        {
+          id: 1,
+          title: 'Software Development NDA',
+          summary: 'Non-disclosure agreement for software development services between TechCorp and DevStudio...',
+          parties: 'TechCorp, DevStudio',
+          jurisdiction: 'California',
+          date: '2024-01-15',
+          status: 'Draft'
+        },
+        {
+          id: 2,
+          title: 'Service Agreement - Marketing',
+          summary: 'Comprehensive service agreement outlining marketing services, deliverables, and payment terms...',
+          parties: 'Marketing Inc, ClientCorp',
+          jurisdiction: 'New York',
+          date: '2024-01-12',
+          status: 'Review'
+        },
+        {
+          id: 3,
+          title: 'Employment Contract',
+          summary: 'Standard employment contract with competitive compensation package and comprehensive benefits...',
+          parties: 'ABC Company, John Doe',
+          jurisdiction: 'Texas',
+          date: '2024-01-10',
+          status: 'Final'
+        }
+      ];
+      
+      // Combine saved documents with mock data, with saved documents first
+      const allDocuments = [...savedDocuments, ...mockDocuments];
+      setDocuments(allDocuments);
+    };
+
+    loadSavedDocuments();
+
+    // Listen for storage changes to update documents when new ones are saved
+    const handleStorageChange = () => {
+      loadSavedDocuments();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for a custom event in case save happens in same tab
+    window.addEventListener('documentSaved', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('documentSaved', handleStorageChange);
+    };
+  }, []);
 
   const sidebarItems = [
     { id: 'drafting', label: 'Drafting', icon: Edit3, active: true },
@@ -66,6 +94,15 @@ const Home = () => {
 
   const handleOpenDrafting = (documentId) => {
     navigate('/drafting-workspace', { state: { documentId } });
+  };
+
+  const handleDeleteDocument = (documentId) => {
+    const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
+    const updatedDocuments = savedDocuments.filter(doc => doc.id !== documentId);
+    localStorage.setItem('savedDocuments', JSON.stringify(updatedDocuments));
+    
+    // Update the displayed documents
+    setDocuments(prev => prev.filter(doc => doc.id !== documentId));
   };
 
   const getStatusColor = (status) => {
@@ -210,7 +247,14 @@ const Home = () => {
                           <Button variant="outline" className="h-8 px-2">
                             <Download className="h-3 w-3" />
                           </Button>
-                          <Button variant="outline" className="h-8 px-2 text-red-600 hover:text-red-700">
+                          <Button 
+                            variant="outline" 
+                            className="h-8 px-2 text-red-600 hover:text-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteDocument(doc.id);
+                            }}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>

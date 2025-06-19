@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail } from 'lucide-react';
+import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const DraftingWorkspace = () => {
   const [messages, setMessages] = useState([
@@ -46,8 +47,10 @@ const DraftingWorkspace = () => {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportEmail, setExportEmail] = useState('');
   const [documentGenerated, setDocumentGenerated] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const { toast } = useToast();
 
   const agents = [
     { id: 'drafting', name: 'Drafting Agent', color: 'bg-blue-500', avatar: '✍️', description: 'Generates document structure and content' },
@@ -353,6 +356,35 @@ Date:                                    Date:`;
     setMessages(prev => [...prev, confirmationMessage]);
   };
 
+  const handleSaveDocument = () => {
+    if (!currentDocument) return;
+    
+    // Create document object to save
+    const documentToSave = {
+      id: Date.now(),
+      title: `${documentData.documentType} - ${documentData.partyA} & ${documentData.partyB}`,
+      summary: `${documentData.documentType} between ${documentData.partyA} and ${documentData.partyB} in ${documentData.state}`,
+      parties: `${documentData.partyA}, ${documentData.partyB}`,
+      jurisdiction: documentData.state,
+      date: documentData.date,
+      status: 'Draft',
+      content: currentDocument
+    };
+    
+    // Save to localStorage
+    const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
+    savedDocuments.push(documentToSave);
+    localStorage.setItem('savedDocuments', JSON.stringify(savedDocuments));
+    
+    setIsSaved(true);
+    addToAuditTrail('document_saved', 'User', 'Document saved to home screen');
+    
+    toast({
+      title: "Document Saved",
+      description: "Your document has been saved and will appear on the home screen.",
+    });
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -382,6 +414,7 @@ Date:                                    Date:`;
         const clauseAddition = `\n\nADDITIONAL CLAUSE:\n${currentInput}`;
         setCurrentDocument(prev => prev + clauseAddition);
         addToAuditTrail('clause_added', 'User', `Added clause: ${currentInput}`);
+        setIsSaved(false); // Mark as unsaved when modified
       }, 1000);
       return;
     }
@@ -490,9 +523,9 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center gap-1 bg-blue-50 px-1 py-0.5 rounded text-xs">
-            <span class="text-xs">${cursor.agent.avatar}</span>
-            <span class="text-xs font-medium text-blue-700">${cursor.agent.name.split(' ')[0]}</span>
+          const cursorElement = `<span class="inline-flex items-center gap-1 bg-blue-50 px-1 rounded text-xs mr-1">
+            <span>${cursor.agent.avatar}</span>
+            <span class="text-blue-700 font-medium">${cursor.agent.name.split(' ')[0]}</span>
             <span class="w-0.5 h-3 bg-blue-500 animate-pulse"></span>
           </span>`;
           
@@ -518,9 +551,19 @@ Date:                                    Date:`;
           <div className="text-sm text-gray-500">Matter: Johnson v. Smith Contract Review</div>
         </div>
         <div className="flex items-center space-x-4">
+          <Button 
+            onClick={handleSaveDocument} 
+            variant="outline" 
+            size="sm"
+            disabled={!documentGenerated}
+            className={isSaved ? "bg-green-50 border-green-200 text-green-700" : ""}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {isSaved ? 'Saved' : 'Save'}
+          </Button>
           <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled={!documentGenerated}>
                 <FileText className="h-4 w-4 mr-2" />
                 Export
               </Button>
