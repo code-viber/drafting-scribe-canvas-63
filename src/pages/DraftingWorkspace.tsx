@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const DraftingWorkspace = () => {
   const [messages, setMessages] = useState([
@@ -35,6 +37,7 @@ const DraftingWorkspace = () => {
   const [auditTrail, setAuditTrail] = useState([]);
   const [selectedReference, setSelectedReference] = useState(null);
   const [editingSection, setEditingSection] = useState(null);
+  const [followingCursors, setFollowingCursors] = useState(false);
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -364,9 +367,36 @@ Date:                                    Date:`;
             <FileText className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4" />
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Settings</SheetTitle>
+                <SheetDescription>
+                  Configure your drafting workspace preferences
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="following-cursors">Following Agent Cursors</Label>
+                    <div className="text-sm text-gray-500">
+                      Agent cursors follow their progress through the document
+                    </div>
+                  </div>
+                  <Switch
+                    id="following-cursors"
+                    checked={followingCursors}
+                    onCheckedChange={setFollowingCursors}
+                  />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
           <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
             <User className="h-4 w-4 text-white" />
           </div>
@@ -429,21 +459,6 @@ Date:                                    Date:`;
           <div className="p-4 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Live Document Draft</h2>
-              <div className="flex items-center space-x-2">
-                {activeAgents.map(agentId => {
-                  const agent = agents.find(a => a.id === agentId);
-                  return (
-                    <Badge key={agentId} variant="secondary" className="animate-pulse">
-                      {agent?.avatar} {agent?.name}
-                    </Badge>
-                  );
-                })}
-                {agentCursors.map(cursor => (
-                  <Badge key={cursor.agentId} variant="outline" className="animate-pulse text-xs">
-                    {cursor.agent?.avatar} {cursor.agent?.name}
-                  </Badge>
-                ))}
-              </div>
             </div>
           </div>
           
@@ -539,6 +554,23 @@ Date:                                    Date:`;
           </div>
           
           <ScrollArea className="flex-1">
+            {/* Agent Cursors Panel - shows active cursors when following mode is enabled */}
+            {followingCursors && agentCursors.length > 0 && (
+              <div className="p-4 border-b border-gray-100">
+                <h4 className="font-semibold text-gray-900 mb-3">Active Agent Cursors</h4>
+                <div className="space-y-2">
+                  {agentCursors.map(cursor => (
+                    <div key={cursor.agentId} className="flex items-center space-x-2 p-2 bg-blue-50 rounded-md">
+                      <span className="text-sm">{cursor.agent?.avatar}</span>
+                      <span className="text-sm font-medium text-gray-700">{cursor.agent?.name}</span>
+                      <span className="text-xs text-gray-500">Section {cursor.sectionIndex + 1}</span>
+                      <div className="w-1 h-3 bg-blue-500 animate-pulse ml-auto"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="p-4 space-y-4">
               {agentActivities.map((activity) => (
                 <Card key={activity.id} className="p-3 hover:shadow-md transition-shadow">
