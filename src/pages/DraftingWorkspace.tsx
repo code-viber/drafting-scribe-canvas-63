@@ -38,6 +38,7 @@ const DraftingWorkspace = () => {
   const [selectedReference, setSelectedReference] = useState(null);
   const [editingSection, setEditingSection] = useState(null);
   const [followingCursors, setFollowingCursors] = useState(false);
+  const [typingPositions, setTypingPositions] = useState([]);
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -85,22 +86,22 @@ const DraftingWorkspace = () => {
     addToAuditTrail('data_update', 'System', `Updated ${key} to: ${value}`);
   };
 
-  const simulateAgentCursor = (agentId, sectionIndex) => {
+  const simulateAgentCursor = (agentId, position) => {
     const agent = agents.find(a => a.id === agentId);
     if (!agent) return;
 
-    setAgentCursors(prev => [
-      ...prev.filter(cursor => cursor.agentId !== agentId),
+    setTypingPositions(prev => [
+      ...prev.filter(pos => pos.agentId !== agentId),
       { 
         agentId, 
-        sectionIndex, 
+        position, 
         agent: agent,
         timestamp: Date.now() 
       }
     ]);
     
     setTimeout(() => {
-      setAgentCursors(prev => prev.filter(cursor => cursor.agentId !== agentId));
+      setTypingPositions(prev => prev.filter(pos => pos.agentId !== agentId));
     }, 3000);
   };
 
@@ -220,16 +221,13 @@ Name:                                    Name:
 Title:                                   Title: 
 Date:                                    Date:`;
 
-    // Simulate section-by-section drafting with agent cursors
+    // Simulate section-by-section drafting with inline cursors
     const sections = fullDocument.split('\n\n');
     let currentContent = '';
     
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       const agentId = ['drafting', 'compliance', 'research', 'validation', 'risk'][i % 5];
-      
-      // Show agent cursor at current section
-      simulateAgentCursor(agentId, i);
       
       // Update agent activity
       setAgentActivities(prev => prev.map(activity => 
@@ -238,10 +236,16 @@ Date:                                    Date:`;
           : activity
       ));
       
-      // Type out the section
+      // Type out the section character by character with cursor
       for (let j = 0; j <= section.length; j++) {
         await new Promise(resolve => setTimeout(resolve, 20));
-        currentContent = sections.slice(0, i).join('\n\n') + (i > 0 ? '\n\n' : '') + section.substring(0, j);
+        const partialSection = section.substring(0, j);
+        currentContent = sections.slice(0, i).join('\n\n') + (i > 0 ? '\n\n' : '') + partialSection;
+        
+        // Show cursor at current typing position
+        const currentPosition = currentContent.length;
+        simulateAgentCursor(agentId, currentPosition);
+        
         setCurrentDocument(currentContent);
       }
       
@@ -264,6 +268,7 @@ Date:                                    Date:`;
     
     setIsTyping(false);
     setActiveAgents([]);
+    setTypingPositions([]);
     addToAuditTrail('document_completed', 'System', 'Full document generation completed');
   };
 
@@ -349,6 +354,31 @@ Date:                                    Date:`;
     setCurrentDocument(updatedDocument);
     setEditingSection(null);
     addToAuditTrail('user_edit', 'User', `Edited section: ${editingSection.substring(0, 50)}...`);
+  };
+
+  const renderDocumentWithCursors = () => {
+    if (!currentDocument) return null;
+
+    let documentWithCursors = currentDocument;
+    
+    // Insert cursors at typing positions
+    typingPositions
+      .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
+      .forEach(cursor => {
+        const cursorElement = `<span class="inline-flex items-center animate-pulse">
+          <span class="w-0.5 h-5 bg-blue-500 animate-pulse mr-2"></span>
+          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-medium">
+            ${cursor.agent.avatar} ${cursor.agent.name}
+          </span>
+        </span>`;
+        
+        documentWithCursors = 
+          documentWithCursors.slice(0, cursor.position) +
+          cursorElement +
+          documentWithCursors.slice(cursor.position);
+      });
+
+    return <div dangerouslySetInnerHTML={{ __html: documentWithCursors.replace(/\n/g, '<br />') }} />;
   };
 
   return (
@@ -470,31 +500,7 @@ Date:                                    Date:`;
             >
               {currentDocument && (
                 <div className="whitespace-pre-wrap relative">
-                  {currentDocument.split('\n\n').map((section, index) => (
-                    <div key={index} className="mb-4 group relative">
-                      <div className="hover:bg-blue-50 p-2 rounded cursor-pointer relative" onClick={() => handleSectionEdit(section)}>
-                        {section}
-                        {/* Agent Cursor Display */}
-                        {agentCursors.filter(cursor => cursor.sectionIndex === index).map(cursor => (
-                          <div key={cursor.agentId} className="absolute -right-2 top-0 flex items-center space-x-1 bg-white border border-gray-300 rounded-md px-2 py-1 shadow-sm">
-                            <span className="text-xs">{cursor.agent?.avatar}</span>
-                            <span className="text-xs font-medium text-gray-700">{cursor.agent?.name}</span>
-                            <div className="w-2 h-4 bg-blue-500 animate-pulse"></div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button size="sm" variant="ghost" onClick={() => handleSectionEdit(section)}>
-                          <Edit3 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {isTyping && (
-                    <span className="inline-flex items-center ml-1">
-                      <span className="animate-pulse bg-blue-500 w-0.5 h-5 mr-2"></span>
-                    </span>
-                  )}
+                  {renderDocumentWithCursors()}
                 </div>
               )}
               {!currentDocument && !isTyping && (
@@ -555,15 +561,15 @@ Date:                                    Date:`;
           
           <ScrollArea className="flex-1">
             {/* Agent Cursors Panel - shows active cursors when following mode is enabled */}
-            {followingCursors && agentCursors.length > 0 && (
+            {followingCursors && typingPositions.length > 0 && (
               <div className="p-4 border-b border-gray-100">
                 <h4 className="font-semibold text-gray-900 mb-3">Active Agent Cursors</h4>
                 <div className="space-y-2">
-                  {agentCursors.map(cursor => (
+                  {typingPositions.map(cursor => (
                     <div key={cursor.agentId} className="flex items-center space-x-2 p-2 bg-blue-50 rounded-md">
                       <span className="text-sm">{cursor.agent?.avatar}</span>
                       <span className="text-sm font-medium text-gray-700">{cursor.agent?.name}</span>
-                      <span className="text-xs text-gray-500">Section {cursor.sectionIndex + 1}</span>
+                      <span className="text-xs text-gray-500">Position {cursor.position}</span>
                       <div className="w-1 h-3 bg-blue-500 animate-pulse ml-auto"></div>
                     </div>
                   ))}
