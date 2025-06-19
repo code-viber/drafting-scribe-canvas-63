@@ -45,6 +45,7 @@ const DraftingWorkspace = () => {
   const [showUploadOption, setShowUploadOption] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportEmail, setExportEmail] = useState('');
+  const [documentGenerated, setDocumentGenerated] = useState(false);
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -278,6 +279,7 @@ Date:                                    Date:`;
     setIsTyping(false);
     setActiveAgents([]);
     setTypingPositions([]);
+    setDocumentGenerated(true);
     addToAuditTrail('document_completed', 'System', 'Full document generation completed');
   };
 
@@ -288,13 +290,31 @@ Date:                                    Date:`;
       const aiResponse = {
         id: Date.now(),
         type: 'ai',
-        content: `Great! I've received your document "${file.name}". I'll analyze it and incorporate relevant information into the draft. Now, could you please provide the name of the first party (Company/Individual A)?`,
+        content: `Great! I've received your document "${file.name}". I'll analyze it and start drafting your document based on the content. Let me begin the drafting process.`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiResponse]);
-      setConversationStage('party-a');
       setShowUploadOption(false);
       addToAuditTrail('document_uploaded', 'User', `Uploaded document: ${file.name}`);
+      
+      // Auto-extract data from filename and start drafting
+      const extractedType = file.name.toLowerCase().includes('nda') ? 'NDA' : documentData.documentType;
+      updateDocumentData('documentType', extractedType);
+      updateDocumentData('partyA', 'Company A');
+      updateDocumentData('partyB', 'Company B');
+      updateDocumentData('state', 'California');
+      updateDocumentData('date', new Date().toLocaleDateString());
+      
+      // Start drafting immediately
+      setTimeout(() => {
+        simulateFullDocumentDrafting(extractedType, {
+          documentType: extractedType,
+          partyA: 'Company A',
+          partyB: 'Company B',
+          state: 'California',
+          date: new Date().toLocaleDateString()
+        });
+      }, 2000);
     }
   };
 
@@ -346,6 +366,25 @@ Date:                                    Date:`;
     setMessages(prev => [...prev, userMessage]);
     const currentInput = inputMessage;
     setInputMessage('');
+
+    // If document is already generated, treat as clause addition
+    if (documentGenerated) {
+      const aiResponse = {
+        id: Date.now() + 1,
+        type: 'ai',
+        content: `I'll add that clause to your document. Let me update the document with: "${currentInput}"`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      
+      // Simulate adding clause to document
+      setTimeout(() => {
+        const clauseAddition = `\n\nADDITIONAL CLAUSE:\n${currentInput}`;
+        setCurrentDocument(prev => prev + clauseAddition);
+        addToAuditTrail('clause_added', 'User', `Added clause: ${currentInput}`);
+      }, 1000);
+      return;
+    }
 
     // Update document data based on conversation stage
     if (conversationStage === 'document-type') {
@@ -451,12 +490,10 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center gap-1">
+          const cursorElement = `<span class="inline-flex items-center gap-1 bg-blue-50 px-1 py-0.5 rounded text-xs">
+            <span class="text-xs">${cursor.agent.avatar}</span>
+            <span class="text-xs font-medium text-blue-700">${cursor.agent.name.split(' ')[0]}</span>
             <span class="w-0.5 h-3 bg-blue-500 animate-pulse"></span>
-            <span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-md text-xs font-medium flex items-center gap-1 whitespace-nowrap">
-              <span class="text-xs">${cursor.agent.avatar}</span>
-              <span class="text-xs">${cursor.agent.name.split(' ')[0]}</span>
-            </span>
           </span>`;
           
           documentWithCursors = 
@@ -578,7 +615,7 @@ Date:                                    Date:`;
                 <span>AI Assistant</span>
               </div>
               <Badge variant="outline" className="text-xs">
-                Stage: {conversationStage.replace('-', ' ')}
+                {documentGenerated ? 'Add Clauses' : `Stage: ${conversationStage.replace('-', ' ')}`}
               </Badge>
             </div>
           </div>
@@ -626,7 +663,7 @@ Date:                                    Date:`;
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Provide the requested information..."
+                placeholder={documentGenerated ? "Add a clause or modification..." : "Provide the requested information..."}
                 className="flex-1"
               />
               <Button onClick={handleSendMessage} size="sm">
