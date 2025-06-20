@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+
 const DraftingWorkspace = () => {
   const [messages, setMessages] = useState([{
     id: 1,
@@ -48,6 +49,9 @@ const DraftingWorkspace = () => {
   const [hoveredLine, setHoveredLine] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingText, setEditingText] = useState('');
+  const [inlineEditingEnabled, setInlineEditingEnabled] = useState(true);
+  const [inlineEditingLine, setInlineEditingLine] = useState(null);
+  const [inlineEditingValue, setInlineEditingValue] = useState('');
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
   const {
@@ -143,12 +147,10 @@ const DraftingWorkspace = () => {
     if (!showBlinkingCursors) return;
     const agent = agents.find(a => a.id === agentId);
     if (!agent) return;
-    setTypingPositions(prev => [...prev.filter(pos => pos.agentId !== agentId), {
-      agentId,
-      position,
-      agent: agent,
-      timestamp: Date.now()
-    }]);
+    setTypingPositions(prev => [
+      ...prev.filter(pos => pos.agentId !== agentId),
+      { agentId, position, agent: agent, timestamp: Date.now() }
+    ]);
     setTimeout(() => {
       setTypingPositions(prev => prev.filter(pos => pos.agentId !== agentId));
     }, 3000);
@@ -291,11 +293,11 @@ Date:                                    Date:`;
       const agentId = ['drafting', 'compliance', 'research', 'validation', 'risk'][i % 5];
 
       // Update agent activity
-      setAgentActivities(prev => prev.map(activity => activity.agent === agents.find(a => a.id === agentId)?.name ? {
-        ...activity,
-        activity: `Working on section ${i + 1}`,
-        status: 'active'
-      } : activity));
+      setAgentActivities(prev => prev.map(activity => 
+        activity.agent === agents.find(a => a.id === agentId)?.name
+          ? { ...activity, activity: `Working on section ${i + 1}`, status: 'active' }
+          : activity
+      ));
 
       // Type out the section character by character with cursor
       for (let j = 0; j <= section.length; j++) {
@@ -543,10 +545,31 @@ Date:                                    Date:`;
   const handleLineLeave = () => {
     setHoveredLine(null);
   };
-  const handleEditClick = lineText => {
-    setEditingText(lineText);
-    setShowEditDialog(true);
-    setHoveredLine(null);
+  const handleEditClick = (lineText, lineIndex) => {
+    if (inlineEditingEnabled) {
+      setInlineEditingLine(lineIndex);
+      setInlineEditingValue(lineText);
+      setHoveredLine(null);
+    } else {
+      setEditingText(lineText);
+      setEditingSection(lineText);
+      setShowEditDialog(true);
+      setHoveredLine(null);
+    }
+  };
+  const handleInlineEditSave = (lineIndex) => {
+    const lines = currentDocument.split('\n');
+    lines[lineIndex] = inlineEditingValue;
+    const updatedDocument = lines.join('\n');
+    setCurrentDocument(updatedDocument);
+    setInlineEditingLine(null);
+    setInlineEditingValue('');
+    setIsSaved(false);
+    addToAuditTrail('user_edit', 'User', `Edited line: ${inlineEditingValue.substring(0, 50)}...`);
+  };
+  const handleInlineEditCancel = () => {
+    setInlineEditingLine(null);
+    setInlineEditingValue('');
   };
   const handleApplyChanges = () => {
     if (!editingText || !editingSection) return;
@@ -572,7 +595,7 @@ Date:                                    Date:`;
       typingPositions.sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
       .forEach(cursor => {
         const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 2px;">
-            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 6px; vertical-align: middle;"></span>
+            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 6px; vertical-align: middle; border-radius: 1px;"></span>
             <span style="font-family: Georgia, serif; font-size: 0.75em; color: #666; display: inline-flex; align-items: center; gap: 3px;">
               <span>${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
@@ -586,12 +609,36 @@ Date:                                    Date:`;
     const lines = documentWithCursors.split('\n');
     return <div>
         {lines.map((line, index) => <div key={index} className="relative group" onMouseEnter={e => handleLineHover(line.replace(/<[^>]*>/g, ''), e)} onMouseLeave={handleLineLeave}>
-            <div dangerouslySetInnerHTML={{
+            {inlineEditingLine === index ? (
+              <div className="flex items-center gap-2 mb-1">
+                <Input
+                  value={inlineEditingValue}
+                  onChange={(e) => setInlineEditingValue(e.target.value)}
+                  className="flex-1 text-sm"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleInlineEditSave(index);
+                    } else if (e.key === 'Escape') {
+                      handleInlineEditCancel();
+                    }
+                  }}
+                  autoFocus
+                />
+                <Button size="sm" onClick={() => handleInlineEditSave(index)}>
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleInlineEditCancel}>
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <div dangerouslySetInnerHTML={{
           __html: line || '<br />'
         }} className="hover-line" />
-            {hoveredLine && hoveredLine.text === line.replace(/<[^>]*>/g, '') && documentGenerated && line.trim() && <button onClick={() => {
+            )}
+            {hoveredLine && hoveredLine.text === line.replace(/<[^>]*>/g, '') && documentGenerated && line.trim() && inlineEditingLine !== index && <button onClick={() => {
           setEditingSection(line.replace(/<[^>]*>/g, ''));
-          handleEditClick(line.replace(/<[^>]*>/g, ''));
+          handleEditClick(line.replace(/<[^>]*>/g, ''), index);
         }} className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-blue-700" style={{
           transform: 'translateY(-2px)'
         }}>
@@ -691,6 +738,15 @@ Date:                                    Date:`;
                     </div>
                   </div>
                   <Switch id="blinking-cursors" checked={showBlinkingCursors} onCheckedChange={setShowBlinkingCursors} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="inline-editing">Inline Editing</Label>
+                    <div className="text-sm text-gray-500">
+                      Edit lines directly without popup dialog
+                    </div>
+                  </div>
+                  <Switch id="inline-editing" checked={inlineEditingEnabled} onCheckedChange={setInlineEditingEnabled} />
                 </div>
               </div>
             </SheetContent>
