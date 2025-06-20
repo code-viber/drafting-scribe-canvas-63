@@ -48,6 +48,9 @@ const DraftingWorkspace = () => {
   const [exportEmail, setExportEmail] = useState('');
   const [documentGenerated, setDocumentGenerated] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [hoveredLine, setHoveredLine] = useState(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingText, setEditingText] = useState('');
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
   const { toast } = useToast();
@@ -502,15 +505,37 @@ Date:                                    Date:`;
     }
   };
 
-  const handleSectionEdit = (sectionText) => {
-    setEditingSection(sectionText);
+  const handleLineHover = (lineText, event) => {
+    if (!documentGenerated) return;
+    setHoveredLine({ text: lineText, element: event.target });
   };
 
-  const applyEdit = (newText) => {
-    const updatedDocument = currentDocument.replace(editingSection, newText);
+  const handleLineLeave = () => {
+    setHoveredLine(null);
+  };
+
+  const handleEditClick = (lineText) => {
+    setEditingText(lineText);
+    setShowEditDialog(true);
+    setHoveredLine(null);
+  };
+
+  const handleApplyChanges = () => {
+    if (!editingText || !editingSection) return;
+    
+    const updatedDocument = currentDocument.replace(editingSection, editingText);
     setCurrentDocument(updatedDocument);
+    setShowEditDialog(false);
+    setEditingText('');
     setEditingSection(null);
+    setIsSaved(false);
     addToAuditTrail('user_edit', 'User', `Edited section: ${editingSection.substring(0, 50)}...`);
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditDialog(false);
+    setEditingText('');
+    setEditingSection(null);
   };
 
   const renderDocumentWithCursors = () => {
@@ -538,7 +563,39 @@ Date:                                    Date:`;
         });
     }
 
-    return <div dangerouslySetInnerHTML={{ __html: documentWithCursors.replace(/\n/g, '<br />') }} />;
+    // Split into lines for hover functionality
+    const lines = documentWithCursors.split('\n');
+    
+    return (
+      <div>
+        {lines.map((line, index) => (
+          <div
+            key={index}
+            className="relative group"
+            onMouseEnter={(e) => handleLineHover(line.replace(/<[^>]*>/g, ''), e)}
+            onMouseLeave={handleLineLeave}
+          >
+            <div 
+              dangerouslySetInnerHTML={{ __html: line || '<br />' }}
+              className="hover-line"
+            />
+            {hoveredLine && hoveredLine.text === line.replace(/<[^>]*>/g, '') && documentGenerated && line.trim() && (
+              <button
+                onClick={() => {
+                  setEditingSection(line.replace(/<[^>]*>/g, ''));
+                  handleEditClick(line.replace(/<[^>]*>/g, ''));
+                }}
+                className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-blue-700"
+                style={{ transform: 'translateY(-2px)' }}
+              >
+                <Edit3 className="h-3 w-3" />
+                Edit
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -547,6 +604,9 @@ Date:                                    Date:`;
         @keyframes blink {
           0%, 50% { opacity: 1; }
           51%, 100% { opacity: 0; }
+        }
+        .hover-line:hover {
+          background-color: rgba(59, 130, 246, 0.05);
         }
       ` }} />
       
@@ -899,27 +959,33 @@ Date:                                    Date:`;
         </div>
       </div>
 
-      {/* Edit Section Modal */}
-      {editingSection && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-96 p-6">
-            <h3 className="font-semibold mb-4">Edit Section</h3>
+      {/* Edit Section Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Section</DialogTitle>
+            <DialogDescription>
+              Make changes to the selected text section
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
             <Textarea
-              value={editingSection}
-              onChange={(e) => setEditingSection(e.target.value)}
-              className="mb-4 min-h-32"
+              value={editingText}
+              onChange={(e) => setEditingText(e.target.value)}
+              className="min-h-32"
+              placeholder="Edit the section text..."
             />
             <div className="flex space-x-2">
-              <Button onClick={() => applyEdit(editingSection)} className="flex-1">
+              <Button onClick={handleApplyChanges} className="flex-1">
                 Apply Changes
               </Button>
-              <Button variant="outline" onClick={() => setEditingSection(null)} className="flex-1">
+              <Button variant="outline" onClick={handleCancelEdit} className="flex-1">
                 Cancel
               </Button>
             </div>
-          </Card>
-        </div>
-      )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
