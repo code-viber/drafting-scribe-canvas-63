@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Upload, FileText, MessageSquare, CheckCircle, Loader2 } from "lucide-react";
+import { FileText } from "lucide-react";
 import DocumentUpload from "../components/summarization/DocumentUpload";
 import ProgressSteps from "../components/summarization/ProgressSteps";
 import SummaryTab from "../components/summarization/SummaryTab";
@@ -14,7 +13,6 @@ import QualityTab from "../components/summarization/QualityTab";
 import ReportTab from "../components/summarization/ReportTab";
 import AuditTrailTab from "../components/summarization/AuditTrailTab";
 import ChatPanel from "../components/summarization/ChatPanel";
-import SuggestionsPanel from "../components/summarization/SuggestionsPanel";
 
 type ProcessingStage = 'upload' | 'processing' | 'results';
 
@@ -61,9 +59,9 @@ const Summarization = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content - Document Results */}
+          <div className="lg:col-span-2">
             {stage === 'upload' && (
               <DocumentUpload onFileUpload={handleFileUpload} />
             )}
@@ -112,10 +110,11 @@ const Summarization = () => {
             )}
           </div>
 
-          {/* Right Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <ChatPanel />
-            <SuggestionsPanel />
+          {/* Right Sidebar - Chat Only */}
+          <div className="lg:col-span-1">
+            {stage === 'results' && (
+              <ChatPanel fileName={uploadedFile?.name || ''} />
+            )}
           </div>
         </div>
       </div>
