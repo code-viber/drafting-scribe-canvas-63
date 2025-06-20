@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, FileText, Vault, Workflow, Send, Download, Trash2, Eye } from 'lucide-react';
+import { Edit3, FileText, Vault, Workflow, Send, Download, Trash2, Eye, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
 const Home = () => {
   const navigate = useNavigate();
   const [inputPrompt, setInputPrompt] = useState('');
@@ -60,27 +62,47 @@ const Home = () => {
       window.removeEventListener('documentSaved', handleStorageChange);
     };
   }, []);
+
   const sidebarItems = [{
+    id: 'home',
+    label: 'Home',
+    icon: HomeIcon,
+    active: true,
+    path: '/home'
+  }, {
     id: 'drafting',
     label: 'Drafting',
     icon: Edit3,
-    active: true
+    active: false,
+    path: '/drafting-workspace'
   }, {
     id: 'summarization',
     label: 'Summarization',
     icon: FileText,
-    active: false
+    active: false,
+    path: '/summarization'
   }, {
     id: 'vault',
     label: 'Vault',
     icon: Vault,
-    active: false
+    active: false,
+    path: '/vault'
   }, {
     id: 'workflows',
     label: 'Workflows',
     icon: Workflow,
-    active: false
+    active: false,
+    path: '/workflows'
   }];
+
+  const handleSidebarNavigation = (item) => {
+    if (item.path === '/home') {
+      // Already on home, no need to navigate
+      return;
+    }
+    navigate(item.path);
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
     if (inputPrompt.trim()) {
@@ -92,12 +114,14 @@ const Home = () => {
       });
     }
   };
+
   const handleKeyPress = e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
   };
+
   const handleOpenDrafting = documentId => {
     navigate('/drafting-workspace', {
       state: {
@@ -105,6 +129,7 @@ const Home = () => {
       }
     });
   };
+
   const handleDeleteDocument = documentId => {
     const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
     const updatedDocuments = savedDocuments.filter(doc => doc.id !== documentId);
@@ -113,6 +138,7 @@ const Home = () => {
     // Update the displayed documents
     setDocuments(prev => prev.filter(doc => doc.id !== documentId));
   };
+
   const getStatusColor = status => {
     switch (status) {
       case 'Draft':
@@ -125,6 +151,7 @@ const Home = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
   return <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -141,7 +168,10 @@ const Home = () => {
           <div className="space-y-2">
             {sidebarItems.map(item => {
             const Icon = item.icon;
-            return <button key={item.id} className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${item.active ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+            return <button 
+                key={item.id} 
+                onClick={() => handleSidebarNavigation(item)}
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${item.active ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
                   <Icon className="h-5 w-5" />
                   <span className="font-medium">{item.label}</span>
                 </button>;
@@ -263,4 +293,5 @@ const Home = () => {
       </div>
     </div>;
 };
+
 export default Home;
