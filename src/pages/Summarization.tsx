@@ -10,7 +10,6 @@ import SummaryTab from "../components/summarization/SummaryTab";
 import RiskAnalysisTab from "../components/summarization/RiskAnalysisTab";
 import FinancialTermsTab from "../components/summarization/FinancialTermsTab";
 import QualityTab from "../components/summarization/QualityTab";
-import ReportTab from "../components/summarization/ReportTab";
 import AuditTrailTab from "../components/summarization/AuditTrailTab";
 import ChatPanel from "../components/summarization/ChatPanel";
 
@@ -73,12 +72,11 @@ const Summarization = () => {
             {stage === 'results' && (
               <div className="space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur-md">
+                  <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md">
                     <TabsTrigger value="summary">Summary</TabsTrigger>
                     <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
                     <TabsTrigger value="financial">Financial Terms</TabsTrigger>
                     <TabsTrigger value="quality">Quality</TabsTrigger>
-                    <TabsTrigger value="report">Report</TabsTrigger>
                     <TabsTrigger value="audit">Audit Trail</TabsTrigger>
                   </TabsList>
 
@@ -98,10 +96,6 @@ const Summarization = () => {
                     <QualityTab />
                   </TabsContent>
 
-                  <TabsContent value="report" className="mt-6">
-                    <ReportTab fileName={uploadedFile?.name || ''} />
-                  </TabsContent>
-
                   <TabsContent value="audit" className="mt-6">
                     <AuditTrailTab />
                   </TabsContent>
@@ -110,11 +104,9 @@ const Summarization = () => {
             )}
           </div>
 
-          {/* Right Sidebar - Chat Only */}
+          {/* Right Sidebar - Chat Always Visible */}
           <div className="lg:col-span-1">
-            {stage === 'results' && (
-              <ChatPanel fileName={uploadedFile?.name || ''} />
-            )}
+            <ChatPanel fileName={uploadedFile?.name || ''} />
           </div>
         </div>
       </div>
