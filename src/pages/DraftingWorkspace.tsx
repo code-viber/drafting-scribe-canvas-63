@@ -548,9 +548,9 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 1px; margin-right: 4px;">
-            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 4px; border-radius: 1px; vertical-align: middle;"></span>
-            <span class="inline-flex items-center bg-gray-50 border border-gray-200 text-xs font-medium text-gray-800 px-2 py-1 rounded" style="font-family: Georgia, serif; box-shadow: 0 1px 4px rgba(60,60,60,0.04); gap: 4px;">
+          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 2px;">
+            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 6px; vertical-align: middle;"></span>
+            <span style="font-family: Georgia, serif; font-size: 0.75em; color: #666; display: inline-flex; align-items: center; gap: 3px;">
               <span>${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
             </span>
@@ -868,9 +868,9 @@ Date:                                    Date:`;
                 <div className="space-y-2">
                   {typingPositions.map(cursor => (
                     <div key={cursor.agentId} className="flex items-center space-x-2 p-2 bg-blue-50 rounded-md">
-                      <span className="text-sm">{cursor.agent?.avatar}</span>
-                      <span className="text-sm font-medium text-gray-700">{cursor.agent?.name}</span>
-                      <span className="text-xs text-gray-500">Position {cursor.position}</span>
+                      <span className="text-sm">${cursor.agent?.avatar}</span>
+                      <span className="text-sm font-medium text-gray-700">${cursor.agent?.name}</span>
+                      <span className="text-xs text-gray-500">Position ${cursor.position}</span>
                       <div className="w-0.5 h-3 bg-blue-500 animate-pulse ml-auto"></div>
                     </div>
                   ))}
