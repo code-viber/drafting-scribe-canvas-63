@@ -549,9 +549,9 @@ Date:                                    Date:`;
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
           const cursorElement = `<span class="inline-flex items-center" style="margin-left: 1px; margin-right: 4px;">
-            <span class="inline-block bg-blue-500 rounded-sm" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 4px; border-radius: 1px; vertical-align: middle;"></span>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-800 shadow-sm" style="font-family: Georgia, serif; font-size: 0.8em; box-shadow: 0 1px 4px rgba(60,60,60,0.04);">
-              <span style="font-size: 0.9em;">${cursor.agent.avatar}</span>
+            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 4px; border-radius: 1px; vertical-align: middle;"></span>
+            <span class="inline-flex items-center bg-gray-50 border border-gray-200 text-xs font-medium text-gray-800 px-2 py-1 rounded" style="font-family: Georgia, serif; box-shadow: 0 1px 4px rgba(60,60,60,0.04); gap: 4px;">
+              <span>${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
             </span>
           </span>`;
