@@ -17,7 +17,9 @@ const ChatPanel = ({ fileName }: ChatPanelProps) => {
     {
       id: 1,
       type: 'bot',
-      content: `Hello! I've analyzed "${fileName}". Feel free to ask me any questions about the summary, risks, or recommendations.`,
+      content: fileName 
+        ? `Hello! I've analyzed "${fileName}". Feel free to ask me any questions about the summary, risks, or recommendations.`
+        : "Hello! I can help you understand anything about document analysis. Please upload a document to get started, and I'll be here to answer any questions about the results.",
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -77,27 +79,29 @@ const ChatPanel = ({ fileName }: ChatPanelProps) => {
             AI Assistant
           </CardTitle>
           
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setIsPreviewOpen(true)}
-              className="flex items-center gap-1"
-            >
-              <Eye className="h-3 w-3" />
-              Preview Report
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setIsShareOpen(true)}
-              className="flex items-center gap-1"
-            >
-              <Share className="h-3 w-3" />
-              Share Report
-            </Button>
-          </div>
+          {/* Action Buttons - only show when document is uploaded */}
+          {fileName && (
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsPreviewOpen(true)}
+                className="flex items-center gap-1"
+              >
+                <Eye className="h-3 w-3" />
+                Preview Report
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsShareOpen(true)}
+                className="flex items-center gap-1"
+              >
+                <Share className="h-3 w-3" />
+                Share Report
+              </Button>
+            </div>
+          )}
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col p-0">
