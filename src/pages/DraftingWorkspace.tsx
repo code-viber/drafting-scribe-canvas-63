@@ -594,9 +594,9 @@ Date:                                    Date:`;
     if (showBlinkingCursors) {
       typingPositions.sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
       .forEach(cursor => {
-        const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 2px;">
-            <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 6px; vertical-align: middle; border-radius: 1px;"></span>
-            <span style="font-family: Georgia, serif; font-size: 0.75em; color: #666; display: inline-flex; align-items: center; gap: 3px;">
+        const cursorElement = `<span class="inline-flex items-center gap-1 mx-1">
+            <span class="inline-block bg-blue-500 animate-pulse" style="width: 2px; height: 14px;"></span>
+            <span class="text-xs text-gray-600 flex items-center gap-1">
               <span>${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
             </span>
