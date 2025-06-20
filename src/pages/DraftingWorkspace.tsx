@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -523,10 +524,12 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md text-xs font-medium text-blue-700 mx-1">
-            <span class="text-xs">${cursor.agent.avatar}</span>
-            <span class="text-blue-600">${cursor.agent.name.split(' ')[0]}</span>
-            <span class="w-0.5 h-3 bg-blue-500 animate-pulse rounded-full"></span>
+          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 4px; margin-right: 10px;">
+            <span class="inline-block w-0.5 bg-blue-500 rounded-sm" style="height: 1.2em; animation: blink 1s steps(2, start) infinite; margin-right: 10px;"></span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-sm font-bold text-gray-800 shadow-sm" style="font-family: Georgia, serif;">
+              <span style="font-size: 1.1em;">${cursor.agent.avatar}</span>
+              <span>${cursor.agent.name}</span>
+            </span>
           </span>`;
           
           documentWithCursors = 
@@ -541,6 +544,13 @@ Date:                                    Date:`;
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      ` }} />
+      
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
