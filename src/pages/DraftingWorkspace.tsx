@@ -11,16 +11,13 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-
 const DraftingWorkspace = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'ai',
-      content: "Hello! I'm your legal drafting assistant. I'll help you create a comprehensive legal document. Let's start by gathering some essential information. What type of document would you like me to draft for you today? (e.g., Contract, NDA, Service Agreement, etc.)",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState([{
+    id: 1,
+    type: 'ai',
+    content: "Hello! I'm your legal drafting assistant. I'll help you create a comprehensive legal document. Let's start by gathering some essential information. What type of document would you like me to draft for you today? (e.g., Contract, NDA, Service Agreement, etc.)",
+    timestamp: new Date()
+  }]);
   const [inputMessage, setInputMessage] = useState('');
   const [currentDocument, setCurrentDocument] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -53,34 +50,78 @@ const DraftingWorkspace = () => {
   const [editingText, setEditingText] = useState('');
   const documentRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const { toast } = useToast();
-
-  const agents = [
-    { id: 'drafting', name: 'Drafting Agent', color: 'bg-blue-500', avatar: '✍️', description: 'Generates document structure and content' },
-    { id: 'compliance', name: 'Compliance Agent', color: 'bg-green-500', avatar: '⚖️', description: 'Ensures regulatory compliance' },
-    { id: 'research', name: 'Research Agent', color: 'bg-purple-500', avatar: '🔍', description: 'Finds relevant legal precedents' },
-    { id: 'validation', name: 'Validation Agent', color: 'bg-orange-500', avatar: '✅', description: 'Validates legal accuracy' },
-    { id: 'risk', name: 'Risk Agent', color: 'bg-red-500', avatar: '⚠️', description: 'Identifies potential risks' }
-  ];
-
+  const {
+    toast
+  } = useToast();
+  const agents = [{
+    id: 'drafting',
+    name: 'Drafting Agent',
+    color: 'bg-blue-500',
+    avatar: '✍️',
+    description: 'Generates document structure and content'
+  }, {
+    id: 'compliance',
+    name: 'Compliance Agent',
+    color: 'bg-green-500',
+    avatar: '⚖️',
+    description: 'Ensures regulatory compliance'
+  }, {
+    id: 'research',
+    name: 'Research Agent',
+    color: 'bg-purple-500',
+    avatar: '🔍',
+    description: 'Finds relevant legal precedents'
+  }, {
+    id: 'validation',
+    name: 'Validation Agent',
+    color: 'bg-orange-500',
+    avatar: '✅',
+    description: 'Validates legal accuracy'
+  }, {
+    id: 'risk',
+    name: 'Risk Agent',
+    color: 'bg-red-500',
+    avatar: '⚠️',
+    description: 'Identifies potential risks'
+  }];
   const conversationFlow = {
-    'document-type': { next: 'upload-question', prompt: "Perfect! Would you like to upload any existing document related to this draft to help me understand your requirements better? (Yes/No)" },
-    'upload-question': { next: 'party-a', prompt: "Thank you! Now, could you please provide the name of the first party (Company/Individual A)?" },
-    'party-a': { next: 'party-b', prompt: "Thank you! Now, what's the name of the second party (Company/Individual B)?" },
-    'party-b': { next: 'jurisdiction', prompt: "Great! In which state or jurisdiction will this agreement be governed?" },
-    'jurisdiction': { next: 'effective-date', prompt: "Excellent! What should be the effective date of this agreement? (e.g., today's date, specific future date)" },
-    'effective-date': { next: 'additional-details', prompt: "Perfect! Are there any specific terms, clauses, or requirements you'd like me to include in this document?" },
-    'additional-details': { next: 'start-drafting', prompt: "Excellent! I have all the information needed. Let me start drafting your document with our specialized agents working together." }
+    'document-type': {
+      next: 'upload-question',
+      prompt: "Perfect! Would you like to upload any existing document related to this draft to help me understand your requirements better? (Yes/No)"
+    },
+    'upload-question': {
+      next: 'party-a',
+      prompt: "Thank you! Now, could you please provide the name of the first party (Company/Individual A)?"
+    },
+    'party-a': {
+      next: 'party-b',
+      prompt: "Thank you! Now, what's the name of the second party (Company/Individual B)?"
+    },
+    'party-b': {
+      next: 'jurisdiction',
+      prompt: "Great! In which state or jurisdiction will this agreement be governed?"
+    },
+    'jurisdiction': {
+      next: 'effective-date',
+      prompt: "Excellent! What should be the effective date of this agreement? (e.g., today's date, specific future date)"
+    },
+    'effective-date': {
+      next: 'additional-details',
+      prompt: "Perfect! Are there any specific terms, clauses, or requirements you'd like me to include in this document?"
+    },
+    'additional-details': {
+      next: 'start-drafting',
+      prompt: "Excellent! I have all the information needed. Let me start drafting your document with our specialized agents working together."
+    }
   };
-
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth"
+    });
   };
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const addToAuditTrail = (action, agent, details) => {
     const entry = {
       id: Date.now(),
@@ -91,7 +132,6 @@ const DraftingWorkspace = () => {
     };
     setAuditTrail(prev => [entry, ...prev]);
   };
-
   const updateDocumentData = (key, value) => {
     setDocumentData(prev => ({
       ...prev,
@@ -99,72 +139,78 @@ const DraftingWorkspace = () => {
     }));
     addToAuditTrail('data_update', 'System', `Updated ${key} to: ${value}`);
   };
-
   const simulateAgentCursor = (agentId, position) => {
     if (!showBlinkingCursors) return;
-    
     const agent = agents.find(a => a.id === agentId);
     if (!agent) return;
-
-    setTypingPositions(prev => [
-      ...prev.filter(pos => pos.agentId !== agentId),
-      { 
-        agentId, 
-        position, 
-        agent: agent,
-        timestamp: Date.now() 
-      }
-    ]);
-    
+    setTypingPositions(prev => [...prev.filter(pos => pos.agentId !== agentId), {
+      agentId,
+      position,
+      agent: agent,
+      timestamp: Date.now()
+    }]);
     setTimeout(() => {
       setTypingPositions(prev => prev.filter(pos => pos.agentId !== agentId));
     }, 3000);
   };
-
   const simulateFullDocumentDrafting = async (docType, data) => {
     setIsTyping(true);
-    
+
     // Initialize all agents
     const allAgents = ['drafting', 'research', 'compliance', 'validation', 'risk'];
     setActiveAgents(allAgents);
-    
+
     // Set initial agent activities
-    setAgentActivities([
-      { id: 1, agent: 'Drafting Agent', activity: 'Structuring document framework', status: 'active' },
-      { id: 2, agent: 'Research Agent', activity: 'Gathering legal precedents', status: 'active' },
-      { id: 3, agent: 'Compliance Agent', activity: 'Checking regulatory requirements', status: 'active' },
-      { id: 4, agent: 'Validation Agent', activity: 'Preparing validation checks', status: 'active' },
-      { id: 5, agent: 'Risk Agent', activity: 'Analyzing potential risks', status: 'active' }
-    ]);
+    setAgentActivities([{
+      id: 1,
+      agent: 'Drafting Agent',
+      activity: 'Structuring document framework',
+      status: 'active'
+    }, {
+      id: 2,
+      agent: 'Research Agent',
+      activity: 'Gathering legal precedents',
+      status: 'active'
+    }, {
+      id: 3,
+      agent: 'Compliance Agent',
+      activity: 'Checking regulatory requirements',
+      status: 'active'
+    }, {
+      id: 4,
+      agent: 'Validation Agent',
+      activity: 'Preparing validation checks',
+      status: 'active'
+    }, {
+      id: 5,
+      agent: 'Risk Agent',
+      activity: 'Analyzing potential risks',
+      status: 'active'
+    }]);
 
     // Enhanced legal references
-    setLegalReferences([
-      { 
-        id: 1, 
-        title: 'Contract Formation Principles', 
-        type: 'Case Law', 
-        relevance: 'High',
-        summary: 'Fundamental principles governing contract formation including offer, acceptance, and consideration.',
-        citation: 'Restatement (Second) of Contracts § 17'
-      },
-      { 
-        id: 2, 
-        title: 'UCC § 2-201 Statute of Frauds', 
-        type: 'Statute', 
-        relevance: 'Medium',
-        summary: 'Requirements for written contracts in sale of goods over $500.',
-        citation: 'Uniform Commercial Code § 2-201'
-      },
-      { 
-        id: 3, 
-        title: 'Unconscionability Doctrine', 
-        type: 'Legal Principle', 
-        relevance: 'High',
-        summary: 'Protection against unfair or oppressive contract terms.',
-        citation: 'Williams v. Walker-Thomas Furniture Co., 350 F.2d 445 (D.C. Cir. 1965)'
-      }
-    ]);
-
+    setLegalReferences([{
+      id: 1,
+      title: 'Contract Formation Principles',
+      type: 'Case Law',
+      relevance: 'High',
+      summary: 'Fundamental principles governing contract formation including offer, acceptance, and consideration.',
+      citation: 'Restatement (Second) of Contracts § 17'
+    }, {
+      id: 2,
+      title: 'UCC § 2-201 Statute of Frauds',
+      type: 'Statute',
+      relevance: 'Medium',
+      summary: 'Requirements for written contracts in sale of goods over $500.',
+      citation: 'Uniform Commercial Code § 2-201'
+    }, {
+      id: 3,
+      title: 'Unconscionability Doctrine',
+      type: 'Legal Principle',
+      relevance: 'High',
+      summary: 'Protection against unfair or oppressive contract terms.',
+      citation: 'Williams v. Walker-Thomas Furniture Co., 350 F.2d 445 (D.C. Cir. 1965)'
+    }]);
     const fullDocument = `${docType.toUpperCase()}
 
 This ${docType} ("Agreement") is entered into on ${data.date}, by and between ${data.partyA}, a ${data.state} corporation ("Company"), and ${data.partyB}, an individual ("Recipient").
@@ -240,56 +286,49 @@ Date:                                    Date:`;
     // Simulate section-by-section drafting with inline cursors
     const sections = fullDocument.split('\n\n');
     let currentContent = '';
-    
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i];
       const agentId = ['drafting', 'compliance', 'research', 'validation', 'risk'][i % 5];
-      
+
       // Update agent activity
-      setAgentActivities(prev => prev.map(activity => 
-        activity.agent === agents.find(a => a.id === agentId)?.name 
-          ? { ...activity, activity: `Working on section ${i + 1}`, status: 'active' }
-          : activity
-      ));
-      
+      setAgentActivities(prev => prev.map(activity => activity.agent === agents.find(a => a.id === agentId)?.name ? {
+        ...activity,
+        activity: `Working on section ${i + 1}`,
+        status: 'active'
+      } : activity));
+
       // Type out the section character by character with cursor
       for (let j = 0; j <= section.length; j++) {
         await new Promise(resolve => setTimeout(resolve, 20));
         const partialSection = section.substring(0, j);
         currentContent = sections.slice(0, i).join('\n\n') + (i > 0 ? '\n\n' : '') + partialSection;
-        
+
         // Show cursor at current typing position
         const currentPosition = currentContent.length;
         simulateAgentCursor(agentId, currentPosition);
-        
         setCurrentDocument(currentContent);
       }
-      
       if (i < sections.length - 1) {
         currentContent += '\n\n';
         setCurrentDocument(currentContent);
       }
-      
       addToAuditTrail('section_completed', agents.find(a => a.id === agentId)?.name, `Completed section ${i + 1}`);
-      
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    
+
     // Mark all agents as completed
     setAgentActivities(prev => prev.map(activity => ({
       ...activity,
       status: 'completed',
       activity: activity.activity.replace('Working on', 'Completed')
     })));
-    
     setIsTyping(false);
     setActiveAgents([]);
     setTypingPositions([]);
     setDocumentGenerated(true);
     addToAuditTrail('document_completed', 'System', 'Full document generation completed');
   };
-
-  const handleFileUpload = (event) => {
+  const handleFileUpload = event => {
     const file = event.target.files[0];
     if (file) {
       setUploadedDocument(file);
@@ -302,7 +341,7 @@ Date:                                    Date:`;
       setMessages(prev => [...prev, aiResponse]);
       setShowUploadOption(false);
       addToAuditTrail('document_uploaded', 'User', `Uploaded document: ${file.name}`);
-      
+
       // Auto-extract data from filename and start drafting
       const extractedType = file.name.toLowerCase().includes('nda') ? 'NDA' : documentData.documentType;
       updateDocumentData('documentType', extractedType);
@@ -310,7 +349,7 @@ Date:                                    Date:`;
       updateDocumentData('partyB', 'Company B');
       updateDocumentData('state', 'California');
       updateDocumentData('date', new Date().toLocaleDateString());
-      
+
       // Start drafting immediately
       setTimeout(() => {
         simulateFullDocumentDrafting(extractedType, {
@@ -323,32 +362,30 @@ Date:                                    Date:`;
       }, 2000);
     }
   };
-
   const handleDownloadDocument = () => {
     if (!currentDocument) return;
-    
     const element = document.createElement('a');
-    const file = new Blob([currentDocument], { type: 'text/plain' });
+    const file = new Blob([currentDocument], {
+      type: 'text/plain'
+    });
     element.href = URL.createObjectURL(file);
     element.download = `${documentData.documentType}_${documentData.partyA}_${documentData.partyB}.txt`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-    
     addToAuditTrail('document_downloaded', 'User', 'Document downloaded');
   };
-
   const handleEmailShare = () => {
     if (!exportEmail || !currentDocument) return;
-    
+
     // Simulate email sending (in real app, this would call an API)
     console.log(`Sending document to: ${exportEmail}`);
     addToAuditTrail('document_shared', 'User', `Document shared via email to: ${exportEmail}`);
-    
+
     // Reset and close dialog
     setExportEmail('');
     setShowExportDialog(false);
-    
+
     // Show confirmation message
     const confirmationMessage = {
       id: Date.now(),
@@ -358,10 +395,9 @@ Date:                                    Date:`;
     };
     setMessages(prev => [...prev, confirmationMessage]);
   };
-
   const handleSaveDocument = () => {
     if (!currentDocument) return;
-    
+
     // Create document object to save
     const documentToSave = {
       id: Date.now(),
@@ -373,31 +409,26 @@ Date:                                    Date:`;
       status: 'Draft',
       content: currentDocument
     };
-    
+
     // Save to localStorage
     const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
     savedDocuments.push(documentToSave);
     localStorage.setItem('savedDocuments', JSON.stringify(savedDocuments));
-    
     setIsSaved(true);
     addToAuditTrail('document_saved', 'User', 'Document saved to home screen');
-    
     toast({
       title: "Document Saved",
-      description: "Your document has been saved and will appear on the home screen.",
+      description: "Your document has been saved and will appear on the home screen."
     });
   };
-
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
-
     const userMessage = {
       id: Date.now(),
       type: 'user',
       content: inputMessage,
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     const currentInput = inputMessage;
     setInputMessage('');
@@ -411,7 +442,7 @@ Date:                                    Date:`;
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiResponse]);
-      
+
       // Simulate adding clause to document
       setTimeout(() => {
         const clauseAddition = `\n\nADDITIONAL CLAUSE:\n${currentInput}`;
@@ -462,7 +493,6 @@ Date:                                    Date:`;
     // AI response based on conversation flow
     setTimeout(() => {
       const currentFlow = conversationFlow[conversationStage];
-      
       if (currentFlow && currentFlow.next !== 'start-drafting') {
         const aiResponse = {
           id: Date.now() + 1,
@@ -480,7 +510,7 @@ Date:                                    Date:`;
           timestamp: new Date()
         };
         setMessages(prev => [...prev, aiResponse]);
-        
+
         // Start full document generation
         setTimeout(() => {
           simulateFullDocumentDrafting(documentData.documentType, documentData);
@@ -497,32 +527,29 @@ Date:                                    Date:`;
       }
     }, 1000);
   };
-
-  const handleKeyPress = (e) => {
+  const handleKeyPress = e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-
   const handleLineHover = (lineText, event) => {
     if (!documentGenerated) return;
-    setHoveredLine({ text: lineText, element: event.target });
+    setHoveredLine({
+      text: lineText,
+      element: event.target
+    });
   };
-
   const handleLineLeave = () => {
     setHoveredLine(null);
   };
-
-  const handleEditClick = (lineText) => {
+  const handleEditClick = lineText => {
     setEditingText(lineText);
     setShowEditDialog(true);
     setHoveredLine(null);
   };
-
   const handleApplyChanges = () => {
     if (!editingText || !editingSection) return;
-    
     const updatedDocument = currentDocument.replace(editingSection, editingText);
     setCurrentDocument(updatedDocument);
     setShowEditDialog(false);
@@ -531,76 +558,52 @@ Date:                                    Date:`;
     setIsSaved(false);
     addToAuditTrail('user_edit', 'User', `Edited section: ${editingSection.substring(0, 50)}...`);
   };
-
   const handleCancelEdit = () => {
     setShowEditDialog(false);
     setEditingText('');
     setEditingSection(null);
   };
-
   const renderDocumentWithCursors = () => {
     if (!currentDocument) return null;
-
     let documentWithCursors = currentDocument;
-    
+
     // Insert cursors at typing positions only if enabled
     if (showBlinkingCursors) {
-      typingPositions
-        .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
-        .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 2px;">
+      typingPositions.sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
+      .forEach(cursor => {
+        const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 2px;">
             <span class="inline-block bg-blue-500" style="width: 1px; height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 6px; vertical-align: middle;"></span>
             <span style="font-family: Georgia, serif; font-size: 0.75em; color: #666; display: inline-flex; align-items: center; gap: 3px;">
               <span>${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
             </span>
           </span>`;
-          
-          documentWithCursors = 
-            documentWithCursors.slice(0, cursor.position) +
-            cursorElement +
-            documentWithCursors.slice(cursor.position);
-        });
+        documentWithCursors = documentWithCursors.slice(0, cursor.position) + cursorElement + documentWithCursors.slice(cursor.position);
+      });
     }
 
     // Split into lines for hover functionality
     const lines = documentWithCursors.split('\n');
-    
-    return (
-      <div>
-        {lines.map((line, index) => (
-          <div
-            key={index}
-            className="relative group"
-            onMouseEnter={(e) => handleLineHover(line.replace(/<[^>]*>/g, ''), e)}
-            onMouseLeave={handleLineLeave}
-          >
-            <div 
-              dangerouslySetInnerHTML={{ __html: line || '<br />' }}
-              className="hover-line"
-            />
-            {hoveredLine && hoveredLine.text === line.replace(/<[^>]*>/g, '') && documentGenerated && line.trim() && (
-              <button
-                onClick={() => {
-                  setEditingSection(line.replace(/<[^>]*>/g, ''));
-                  handleEditClick(line.replace(/<[^>]*>/g, ''));
-                }}
-                className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-blue-700"
-                style={{ transform: 'translateY(-2px)' }}
-              >
+    return <div>
+        {lines.map((line, index) => <div key={index} className="relative group" onMouseEnter={e => handleLineHover(line.replace(/<[^>]*>/g, ''), e)} onMouseLeave={handleLineLeave}>
+            <div dangerouslySetInnerHTML={{
+          __html: line || '<br />'
+        }} className="hover-line" />
+            {hoveredLine && hoveredLine.text === line.replace(/<[^>]*>/g, '') && documentGenerated && line.trim() && <button onClick={() => {
+          setEditingSection(line.replace(/<[^>]*>/g, ''));
+          handleEditClick(line.replace(/<[^>]*>/g, ''));
+        }} className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1 hover:bg-blue-700" style={{
+          transform: 'translateY(-2px)'
+        }}>
                 <Edit3 className="h-3 w-3" />
                 Edit
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-    );
+              </button>}
+          </div>)}
+      </div>;
   };
-
-  return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <style dangerouslySetInnerHTML={{ __html: `
+  return <div className="h-screen flex flex-col bg-gray-50">
+      <style dangerouslySetInnerHTML={{
+      __html: `
         @keyframes blink {
           0%, 50% { opacity: 1; }
           51%, 100% { opacity: 0; }
@@ -608,25 +611,20 @@ Date:                                    Date:`;
         .hover-line:hover {
           background-color: rgba(59, 130, 246, 0.05);
         }
-      ` }} />
+      `
+    }} />
       
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <Scale className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">LegalDraft AI</span>
+            <span className="text-xl font-bold text-gray-900">Qlaws Ai</span>
           </div>
           <div className="text-sm text-gray-500">Matter: Johnson v. Smith Contract Review</div>
         </div>
         <div className="flex items-center space-x-4">
-          <Button 
-            onClick={handleSaveDocument} 
-            variant="outline" 
-            size="sm"
-            disabled={!documentGenerated}
-            className={isSaved ? "bg-green-50 border-green-200 text-green-700" : ""}
-          >
+          <Button onClick={handleSaveDocument} variant="outline" size="sm" disabled={!documentGenerated} className={isSaved ? "bg-green-50 border-green-200 text-green-700" : ""}>
             <Save className="h-4 w-4 mr-2" />
             {isSaved ? 'Saved' : 'Save'}
           </Button>
@@ -647,13 +645,7 @@ Date:                                    Date:`;
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter recipient email"
-                    value={exportEmail}
-                    onChange={(e) => setExportEmail(e.target.value)}
-                  />
+                  <Input id="email" type="email" placeholder="Enter recipient email" value={exportEmail} onChange={e => setExportEmail(e.target.value)} />
                 </div>
                 <div className="flex space-x-2">
                   <Button onClick={handleEmailShare} className="flex-1" disabled={!exportEmail}>
@@ -689,11 +681,7 @@ Date:                                    Date:`;
                       Agent cursors follow their progress through the document
                     </div>
                   </div>
-                  <Switch
-                    id="following-cursors"
-                    checked={followingCursors}
-                    onCheckedChange={setFollowingCursors}
-                  />
+                  <Switch id="following-cursors" checked={followingCursors} onCheckedChange={setFollowingCursors} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -702,11 +690,7 @@ Date:                                    Date:`;
                       Display blinking cursors when agents are typing
                     </div>
                   </div>
-                  <Switch
-                    id="blinking-cursors"
-                    checked={showBlinkingCursors}
-                    onCheckedChange={setShowBlinkingCursors}
-                  />
+                  <Switch id="blinking-cursors" checked={showBlinkingCursors} onCheckedChange={setShowBlinkingCursors} />
                 </div>
               </div>
             </SheetContent>
@@ -734,50 +718,31 @@ Date:                                    Date:`;
           
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-3 rounded-lg ${
-                    message.type === 'user' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-100 text-gray-900'
-                  }`}>
+              {messages.map(message => <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-lg ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
                     <p className="text-sm">{message.content}</p>
                     <p className="text-xs opacity-70 mt-1">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
-                </div>
-              ))}
+                </div>)}
               
-              {showUploadOption && (
-                <div className="flex justify-center">
+              {showUploadOption && <div className="flex justify-center">
                   <div className="relative">
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,.txt"
-                      onChange={handleFileUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
+                    <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                     <Button className="flex items-center space-x-2">
                       <Upload className="h-4 w-4" />
                       <span>Upload Document</span>
                     </Button>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
             <div ref={messagesEndRef} />
           </ScrollArea>
 
           <div className="p-4 border-t border-gray-100">
             <div className="flex space-x-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={documentGenerated ? "Add a clause or modification..." : "Provide the requested information..."}
-                className="flex-1"
-              />
+              <Input value={inputMessage} onChange={e => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder={documentGenerated ? "Add a clause or modification..." : "Provide the requested information..."} className="flex-1" />
               <Button onClick={handleSendMessage} size="sm">
                 <Send className="h-4 w-4" />
               </Button>
@@ -794,18 +759,13 @@ Date:                                    Date:`;
           </div>
           
           <div className="flex-1 p-6 overflow-auto">
-            <div 
-              ref={documentRef}
-              className="bg-white border border-gray-200 rounded-lg p-8 min-h-full font-mono text-sm leading-relaxed relative"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
-              {currentDocument && (
-                <div className="whitespace-pre-wrap relative">
+            <div ref={documentRef} className="bg-white border border-gray-200 rounded-lg p-8 min-h-full font-mono text-sm leading-relaxed relative" style={{
+            fontFamily: 'Georgia, serif'
+          }}>
+              {currentDocument && <div className="whitespace-pre-wrap relative">
                   {renderDocumentWithCursors()}
-                </div>
-              )}
-              {!currentDocument && !isTyping && (
-                <div className="text-gray-400 text-center py-20">
+                </div>}
+              {!currentDocument && !isTyping && <div className="text-gray-400 text-center py-20">
                   <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Your document will appear here as our agents draft it section by section...</p>
                   <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
@@ -814,8 +774,7 @@ Date:                                    Date:`;
                     <div>State: {documentData.state}</div>
                     <div>Date: {documentData.date}</div>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
           </div>
         </div>
@@ -841,8 +800,7 @@ Date:                                    Date:`;
                   </SheetHeader>
                   <ScrollArea className="h-full mt-6">
                     <div className="space-y-3">
-                      {auditTrail.map((entry) => (
-                        <Card key={entry.id} className="p-3">
+                      {auditTrail.map(entry => <Card key={entry.id} className="p-3">
                           <div className="flex items-start justify-between text-xs">
                             <div className="flex-1">
                               <p className="font-medium">{entry.action.replace('_', ' ').toUpperCase()}</p>
@@ -851,8 +809,7 @@ Date:                                    Date:`;
                             </div>
                             <span className="text-gray-400">{entry.timestamp.toLocaleTimeString()}</span>
                           </div>
-                        </Card>
-                      ))}
+                        </Card>)}
                     </div>
                   </ScrollArea>
                 </SheetContent>
@@ -862,33 +819,22 @@ Date:                                    Date:`;
           
           <ScrollArea className="flex-1">
             {/* Agent Cursors Panel - shows active cursors when following mode is enabled */}
-            {followingCursors && typingPositions.length > 0 && showBlinkingCursors && (
-              <div className="p-4 border-b border-gray-100">
+            {followingCursors && typingPositions.length > 0 && showBlinkingCursors && <div className="p-4 border-b border-gray-100">
                 <h4 className="font-semibold text-gray-900 mb-3">Active Agent Cursors</h4>
                 <div className="space-y-2">
-                  {typingPositions.map(cursor => (
-                    <div key={cursor.agentId} className="flex items-center space-x-2 p-2 bg-blue-50 rounded-md">
+                  {typingPositions.map(cursor => <div key={cursor.agentId} className="flex items-center space-x-2 p-2 bg-blue-50 rounded-md">
                       <span className="text-sm">${cursor.agent?.avatar}</span>
                       <span className="text-sm font-medium text-gray-700">${cursor.agent?.name}</span>
                       <span className="text-xs text-gray-500">Position ${cursor.position}</span>
                       <div className="w-0.5 h-3 bg-blue-500 animate-pulse ml-auto"></div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
-              </div>
-            )}
+              </div>}
 
             <div className="p-4 space-y-4">
-              {agentActivities.map((activity) => (
-                <Card key={activity.id} className="p-3 hover:shadow-md transition-shadow">
+              {agentActivities.map(activity => <Card key={activity.id} className="p-3 hover:shadow-md transition-shadow">
                   <div className="flex items-start space-x-3">
-                    <div className={`w-3 h-3 rounded-full mt-1 ${
-                      activity.status === 'active' 
-                        ? 'bg-green-500 animate-pulse' 
-                        : activity.status === 'completed'
-                        ? 'bg-blue-500'
-                        : 'bg-gray-300'
-                    }`} />
+                    <div className={`w-3 h-3 rounded-full mt-1 ${activity.status === 'active' ? 'bg-green-500 animate-pulse' : activity.status === 'completed' ? 'bg-blue-500' : 'bg-gray-300'}`} />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className="font-medium text-sm text-gray-900">{activity.agent}</p>
@@ -899,22 +845,18 @@ Date:                                    Date:`;
                       <p className="text-xs text-gray-600 mt-1">{activity.activity}</p>
                     </div>
                   </div>
-                </Card>
-              ))}
+                </Card>)}
               
-              {agentActivities.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
+              {agentActivities.length === 0 && <div className="text-center py-8 text-gray-400">
                   <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Agents will appear here when active</p>
-                </div>
-              )}
+                </div>}
             </div>
             
             <div className="p-4 border-t border-gray-100">
               <h4 className="font-semibold text-gray-900 mb-3">Legal References & Research</h4>
               <div className="space-y-2">
-                {legalReferences.map((ref) => (
-                  <Sheet key={ref.id}>
+                {legalReferences.map(ref => <Sheet key={ref.id}>
                     <SheetTrigger asChild>
                       <Card className="p-3 hover:bg-gray-50 cursor-pointer transition-colors">
                         <div className="flex items-start justify-between">
@@ -944,15 +886,12 @@ Date:                                    Date:`;
                         </div>
                       </div>
                     </SheetContent>
-                  </Sheet>
-                ))}
+                  </Sheet>)}
                 
-                {legalReferences.length === 0 && (
-                  <div className="text-center py-4 text-gray-400">
+                {legalReferences.length === 0 && <div className="text-center py-4 text-gray-400">
                     <Gavel className="h-6 w-6 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Legal references will appear as agents research</p>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
           </ScrollArea>
@@ -969,12 +908,7 @@ Date:                                    Date:`;
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Textarea
-              value={editingText}
-              onChange={(e) => setEditingText(e.target.value)}
-              className="min-h-32"
-              placeholder="Edit the section text..."
-            />
+            <Textarea value={editingText} onChange={e => setEditingText(e.target.value)} className="min-h-32" placeholder="Edit the section text..." />
             <div className="flex space-x-2">
               <Button onClick={handleApplyChanges} className="flex-1">
                 Apply Changes
@@ -986,8 +920,6 @@ Date:                                    Date:`;
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default DraftingWorkspace;
