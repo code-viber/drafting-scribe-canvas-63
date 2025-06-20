@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -524,10 +523,10 @@ Date:                                    Date:`;
       typingPositions
         .sort((a, b) => b.position - a.position) // Sort in reverse order to maintain positions
         .forEach(cursor => {
-          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 4px; margin-right: 10px;">
-            <span class="inline-block w-0.5 bg-blue-500 rounded-sm" style="height: 1.2em; animation: blink 1s steps(2, start) infinite; margin-right: 10px;"></span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-sm font-bold text-gray-800 shadow-sm" style="font-family: Georgia, serif;">
-              <span style="font-size: 1.1em;">${cursor.agent.avatar}</span>
+          const cursorElement = `<span class="inline-flex items-center" style="margin-left: 2px; margin-right: 4px;">
+            <span class="inline-block w-px bg-blue-500 rounded-sm" style="height: 1em; animation: blink 1s steps(2, start) infinite; margin-right: 4px;"></span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-800 shadow-sm" style="font-family: Georgia, serif;">
+              <span style="font-size: 0.9em;">${cursor.agent.avatar}</span>
               <span>${cursor.agent.name}</span>
             </span>
           </span>`;
