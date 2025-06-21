@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail, Save } from 'lucide-react';
+import { Send, FileText, Scale, Settings, User, MessageSquare, Clock, CheckCircle, AlertCircle, Edit3, Eye, Gavel, Shield, AlertTriangle, Upload, Download, Mail, Save, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from '@/hooks/use-toast';
 
 const DraftingWorkspace = () => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([{
     id: 1,
     type: 'ai',
@@ -648,6 +650,10 @@ Date:                                    Date:`;
           </div>)}
       </div>;
   };
+  const handleBackToHome = () => {
+    navigate('/home');
+  };
+
   return <div className="h-screen flex flex-col bg-gray-50">
       <style dangerouslySetInnerHTML={{
       __html: `
@@ -664,6 +670,15 @@ Date:                                    Date:`;
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleBackToHome}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Button>
           <div className="flex items-center space-x-2">
             <Scale className="h-8 w-8 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">Qlaws Ai</span>

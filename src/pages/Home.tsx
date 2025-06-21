@@ -16,6 +16,8 @@ const Home = () => {
   useEffect(() => {
     const loadSavedDocuments = () => {
       const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
+      const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
+      
       // Merge with mock data for demonstration
       const mockDocuments = [{
         id: 1,
@@ -44,7 +46,7 @@ const Home = () => {
       }];
 
       // Combine saved documents with mock data, with saved documents first
-      const allDocuments = [...savedDocuments, ...mockDocuments];
+      const allDocuments = [...savedDocuments, ...savedSummaries, ...mockDocuments];
       setDocuments(allDocuments);
     };
     loadSavedDocuments();
@@ -57,9 +59,11 @@ const Home = () => {
 
     // Also listen for a custom event in case save happens in same tab
     window.addEventListener('documentSaved', handleStorageChange);
+    window.addEventListener('summarySaved', handleStorageChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('documentSaved', handleStorageChange);
+      window.removeEventListener('summarySaved', handleStorageChange);
     };
   }, []);
 
@@ -132,8 +136,13 @@ const Home = () => {
 
   const handleDeleteDocument = documentId => {
     const savedDocuments = JSON.parse(localStorage.getItem('savedDocuments') || '[]');
+    const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
+    
     const updatedDocuments = savedDocuments.filter(doc => doc.id !== documentId);
+    const updatedSummaries = savedSummaries.filter(doc => doc.id !== documentId);
+    
     localStorage.setItem('savedDocuments', JSON.stringify(updatedDocuments));
+    localStorage.setItem('savedSummaries', JSON.stringify(updatedSummaries));
 
     // Update the displayed documents
     setDocuments(prev => prev.filter(doc => doc.id !== documentId));

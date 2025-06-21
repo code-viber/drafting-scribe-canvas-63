@@ -29,6 +29,26 @@ const Summarization = () => {
     // Simulate processing delay
     setTimeout(() => {
       setStage('results');
+      
+      // Save summarized document to localStorage
+      const summarizedDocument = {
+        id: Date.now(),
+        title: `Summary - ${file.name}`,
+        summary: `AI-generated summary of ${file.name} including key insights, risk analysis, and financial terms...`,
+        parties: 'Extracted from document',
+        jurisdiction: 'As per document',
+        date: new Date().toLocaleDateString(),
+        status: 'Summarized',
+        type: 'summary',
+        fileName: file.name
+      };
+
+      const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
+      savedSummaries.push(summarizedDocument);
+      localStorage.setItem('savedSummaries', JSON.stringify(savedSummaries));
+
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('summarySaved'));
     }, 5000);
   };
 
