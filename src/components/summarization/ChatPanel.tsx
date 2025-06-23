@@ -1,111 +1,65 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, Bot, User, Share, Eye, Loader2 } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Share, Eye } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
 
 interface ChatPanelProps {
   fileName: string;
-  requestId?: string | null;
 }
 
-interface ChatMessage {
-  id: number;
-  type: 'bot' | 'user';
-  content: string;
-  timestamp: string;
-}
-
-const API_BASE_URL = 'http://localhost:8005';
-
-const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
+const ChatPanel = ({ fileName }: ChatPanelProps) => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // Initialize with welcome message
-    const welcomeMessage = fileName && requestId
-      ? `Hello! I've analyzed "${fileName}". Feel free to ask me any questions about the summary, risks, or recommendations.`
-      : "Hello! I can help you understand anything about document analysis. Please upload a document to get started, and I'll be here to answer any questions about the results.";
-
-    setMessages([{
+  const [messages, setMessages] = useState([
+    {
       id: 1,
       type: 'bot',
-      content: welcomeMessage,
+      content: fileName 
+        ? `Hello! I've analyzed "${fileName}". Feel free to ask me any questions about the summary, risks, or recommendations.`
+        : "Hello! I can help you understand anything about document analysis. Please upload a document to get started, and I'll be here to answer any questions about the results.",
       timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
-    }]);
-  }, [fileName, requestId]);
+    }
+  ]);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const handleSendMessage = async () => {
-    if (!message.trim() || !requestId) return;
-
-    const userMessage: ChatMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      content: message,
-      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setMessage('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/chat/${requestId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          context: 'document_analysis'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Chat request failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      const aiResponse: ChatMessage = {
-        id: messages.length + 2,
-        type: 'bot',
-        content: data.response || 'I apologize, but I was unable to process your request. Please try again.',
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      const newMessage = {
+        id: messages.length + 1,
+        type: 'user' as const,
+        content: message,
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
       };
-
-      setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
-      console.error('Error sending chat message:', error);
+      setMessages([...messages, newMessage]);
+      setMessage('');
       
-      // Fallback to mock response for better user experience
-      let fallbackResponse = 'I apologize, but I\'m having trouble connecting to the server. Please try again later.';
-      
-      const lowerMessage = userMessage.content.toLowerCase();
-      if (lowerMessage.includes('clause') || lowerMessage.includes('term')) {
-        fallbackResponse = 'I understand you\'re asking about clauses or terms. Once the connection is restored, I\'ll be able to provide detailed analysis of the document\'s specific clauses.';
-      } else if (lowerMessage.includes('risk')) {
-        fallbackResponse = 'You\'re asking about risks. When the service is available, I can analyze the document\'s risk factors in detail.';
-      } else if (lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
-        fallbackResponse = 'You want a summary or overview. I\'ll be able to provide comprehensive document insights once the connection is restored.';
-      }
-
-      const errorResponse: ChatMessage = {
-        id: messages.length + 2,
-        type: 'bot',
-        content: fallbackResponse,
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages(prev => [...prev, errorResponse]);
-    } finally {
-      setIsLoading(false);
+      // Simulate AI response based on user input
+      setTimeout(() => {
+        let response = 'I understand your question. Let me analyze that aspect of your document...';
+        
+        const lowerMessage = message.toLowerCase();
+        if (lowerMessage.includes('clause') || lowerMessage.includes('term')) {
+          response = 'This clause establishes the terms for payment and delivery. It specifies that payments are due within 30 days and includes standard liability limitations.';
+        } else if (lowerMessage.includes('risk')) {
+          response = 'The main risks I identified include payment default risk due to lack of penalty clauses, and potential liability exposure from limited caps.';
+        } else if (lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
+          response = 'This is a comprehensive service agreement covering consulting services, with a 12-month term, $15,000 monthly payments, and standard IP provisions.';
+        } else if (lowerMessage.includes('recommend')) {
+          response = 'I recommend adding specific penalty terms for late payments, clarifying IP ownership rights, and including force majeure provisions.';
+        }
+        
+        const aiResponse = {
+          id: messages.length + 2,
+          type: 'bot' as const,
+          content: response,
+          timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }, 1000);
     }
   };
 
@@ -126,7 +80,7 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
           </CardTitle>
           
           {/* Action Buttons - only show when document is uploaded */}
-          {fileName && requestId && (
+          {fileName && (
             <div className="flex gap-2 pt-2">
               <Button 
                 variant="outline" 
@@ -172,44 +126,20 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
                 </div>
               </div>
             ))}
-            
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[85%] p-3 rounded-lg bg-gray-100 text-gray-900">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Bot className="h-3 w-3" />
-                    <span className="text-xs opacity-75">now</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span className="text-sm">Thinking...</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
           
           {/* Input */}
           <div className="p-4 border-t">
             <div className="flex gap-2">
               <Input
-                placeholder={requestId ? "Ask about the document..." : "Upload a document first..."}
+                placeholder="Ask about the document..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="flex-1"
-                disabled={!requestId || isLoading}
               />
-              <Button 
-                onClick={handleSendMessage} 
-                disabled={!message.trim() || !requestId || isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
+              <Button onClick={handleSendMessage} disabled={!message.trim()}>
+                <Send className="h-4 w-4" />
               </Button>
             </div>
           </div>
