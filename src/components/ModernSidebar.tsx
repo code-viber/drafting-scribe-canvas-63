@@ -35,17 +35,20 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-brand rounded-2xl flex items-center justify-center shadow-lg">
-                <Edit3 className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900 font-space-grotesk">QLaws.ai</span>
+              <img 
+                src="/lovable-uploads/ab75498a-b915-4c60-bfd8-ad68628d9376.png" 
+                alt="QLaws.ai" 
+                className="h-8 w-auto"
+              />
             </div>
           )}
           
           {isCollapsed && (
-            <div className="w-10 h-10 bg-brand rounded-2xl flex items-center justify-center shadow-lg mx-auto">
-              <Edit3 className="h-5 w-5 text-white" />
-            </div>
+            <img 
+              src="/lovable-uploads/ab75498a-b915-4c60-bfd8-ad68628d9376.png" 
+              alt="QLaws.ai" 
+              className="h-8 w-auto mx-auto"
+            />
           )}
           
           <Button
@@ -73,12 +76,12 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
                   onClick={() => onNavigate(item)}
                   className={`w-full flex items-center space-x-4 px-4 py-3 rounded-2xl text-left transition-all duration-200 group ${
                     item.active 
-                      ? 'bg-brand/10 text-brand shadow-sm border border-brand/20' 
+                      ? 'bg-orange-50 text-orange-600 shadow-sm border border-orange-100' 
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
                   <Icon className={`h-5 w-5 flex-shrink-0 transition-transform duration-200 ${
-                    item.active ? 'text-brand' : 'group-hover:scale-110'
+                    item.active ? 'text-orange-600' : 'group-hover:scale-110'
                   }`} />
                   {!isCollapsed && (
                     <span className="font-medium font-space-grotesk transition-opacity duration-200">

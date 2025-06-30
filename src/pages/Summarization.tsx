@@ -13,6 +13,7 @@ import FinancialTermsTab from "../components/summarization/FinancialTermsTab";
 import QualityTab from "../components/summarization/QualityTab";
 import AuditTrailTab from "../components/summarization/AuditTrailTab";
 import ChatPanel from "../components/summarization/ChatPanel";
+import ProcessingLoader from "../components/summarization/ProcessingLoader";
 
 type ProcessingStage = 'upload' | 'processing' | 'results';
 
@@ -459,7 +460,7 @@ const Summarization = () => {
           <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/home" className="flex items-center gap-1 text-gray-600 hover:text-brand transition-colors">
+                <BreadcrumbLink href="/home" className="flex items-center gap-1 text-gray-600 hover:text-orange-600 transition-colors">
                   <Home className="h-4 w-4" />
                   Home
                 </BreadcrumbLink>
@@ -477,7 +478,7 @@ const Summarization = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <Wand2 className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -498,7 +499,7 @@ const Summarization = () => {
               {stage === 'results' && (
                 <Button 
                   onClick={handleStartOver}
-                  className="bg-brand hover:bg-brand-600 text-white rounded-xl font-medium shadow-sm"
+                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium shadow-sm"
                 >
                   Start Over
                 </Button>
@@ -531,10 +532,10 @@ const Summarization = () => {
             )}
 
             {stage === 'processing' && (
-              <ProgressSteps 
+              <ProcessingLoader 
                 fileName={uploadedFile?.name || ''} 
-                progressData={progressData}
-                requestId={requestId}
+                currentStep={progressData?.message || 'Processing...'}
+                progress={progressData?.progress_percentage || progressData?.progress || 0}
               />
             )}
 
@@ -542,11 +543,11 @@ const Summarization = () => {
               <div className="space-y-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md rounded-2xl p-2 shadow-sm border border-gray-100">
-                    <TabsTrigger value="summary" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Summary</TabsTrigger>
-                    <TabsTrigger value="risk" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Risk Analysis</TabsTrigger>
-                    <TabsTrigger value="financial" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Financial Terms</TabsTrigger>
-                    <TabsTrigger value="quality" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Quality</TabsTrigger>
-                    <TabsTrigger value="audit" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Audit Trail</TabsTrigger>
+                    <TabsTrigger value="summary" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Summary</TabsTrigger>
+                    <TabsTrigger value="risk" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Risk Analysis</TabsTrigger>
+                    <TabsTrigger value="financial" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Financial Terms</TabsTrigger>
+                    <TabsTrigger value="quality" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Quality</TabsTrigger>
+                    <TabsTrigger value="audit" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Audit Trail</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="summary" className="mt-8">
