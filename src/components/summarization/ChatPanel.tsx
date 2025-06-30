@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,32 +119,34 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
 
   return (
     <>
-      <Card className="h-[600px] flex flex-col">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MessageSquare className="h-5 w-5 text-blue-600" />
+      <Card className="h-[700px] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
+        <CardHeader className="pb-4 border-b border-gray-100">
+          <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 font-space-grotesk">
+            <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+              <MessageSquare className="h-5 w-5 text-brand" />
+            </div>
             AI Assistant
           </CardTitle>
           
           {/* Action Buttons - only show when document is uploaded */}
           {fileName && requestId && (
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-3 pt-4">
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsPreviewOpen(true)}
-                className="flex items-center gap-1"
+                className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk"
               >
-                <Eye className="h-3 w-3" />
+                <Eye className="h-4 w-4" />
                 Preview Report
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsShareOpen(true)}
-                className="flex items-center gap-1"
+                className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk"
               >
-                <Share className="h-3 w-3" />
+                <Share className="h-4 w-4" />
                 Share Report
               </Button>
             </div>
@@ -152,23 +155,23 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
         
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 space-y-3">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-lg ${
+                <div className={`max-w-[85%] ${
                   msg.type === 'user' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-900'
-                }`}>
+                    ? 'bg-brand text-white rounded-2xl rounded-br-md' 
+                    : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                } px-4 py-3 shadow-sm`}>
                   <div className="flex items-center gap-2 mb-1">
                     {msg.type === 'bot' ? (
-                      <Bot className="h-3 w-3" />
+                      <Bot className="h-3 w-3 opacity-70" />
                     ) : (
-                      <User className="h-3 w-3" />
+                      <User className="h-3 w-3 opacity-70" />
                     )}
-                    <span className="text-xs opacity-75">{msg.timestamp}</span>
+                    <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
                   </div>
-                  <p className="text-sm">{msg.content}</p>
+                  <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
                 </div>
               </div>
             ))}
@@ -176,42 +179,67 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
             {/* Loading indicator */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] p-3 rounded-lg bg-gray-100 text-gray-900">
+                <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-2 mb-1">
-                    <Bot className="h-3 w-3" />
-                    <span className="text-xs opacity-75">now</span>
+                    <Bot className="h-3 w-3 opacity-70" />
+                    <span className="text-xs opacity-70 font-space-grotesk">now</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    <span className="text-sm">Thinking...</span>
+                    <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                    <span className="text-sm font-space-grotesk">Thinking...</span>
                   </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Empty state */}
+            {messages.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center p-8">
+                  <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="h-8 w-8 text-brand" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
+                    Ready to Help
+                  </h3>
+                  <p className="text-gray-500 font-space-grotesk font-light">
+                    {requestId ? "Ask me anything about your document" : "Upload a document to start chatting"}
+                  </p>
                 </div>
               </div>
             )}
           </div>
           
           {/* Input */}
-          <div className="p-4 border-t">
-            <div className="flex gap-2">
-              <Input
-                placeholder={requestId ? "Ask about the document..." : "Upload a document first..."}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="flex-1"
-                disabled={!requestId || isLoading}
-              />
+          <div className="p-6 border-t border-gray-100">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 relative">
+                <Input
+                  placeholder={requestId ? "Ask anything about the document..." : "Upload a document first..."}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="rounded-2xl border-gray-200 bg-gray-50/50 px-4 py-3 font-space-grotesk placeholder:text-gray-400 focus:border-brand focus:ring-brand/20"
+                  disabled={!requestId || isLoading}
+                />
+              </div>
               <Button 
                 onClick={handleSendMessage} 
                 disabled={!message.trim() || !requestId || isLoading}
+                className="bg-brand hover:bg-brand-600 text-white p-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 )}
               </Button>
             </div>
+            {!requestId && (
+              <p className="text-xs text-gray-400 mt-2 font-space-grotesk">
+                Upload a document to enable chat functionality
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

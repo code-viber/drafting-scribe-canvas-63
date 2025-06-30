@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -168,10 +169,10 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Loading summary data...</span>
+      <div className="flex items-center justify-center py-16">
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-6 w-6 animate-spin text-brand" />
+          <span className="text-lg font-space-grotesk">Loading summary data...</span>
         </div>
       </div>
     );
@@ -179,10 +180,10 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
   if (error) {
     return (
-      <Card className="p-6">
+      <Card className="p-8 bg-red-50/80 backdrop-blur-sm border-red-100 rounded-2xl">
         <div className="text-center text-red-600">
-          <p>Error loading summary data: {error}</p>
-          <p className="text-sm text-gray-500 mt-2">Please try refreshing the page or contact support if the issue persists.</p>
+          <p className="font-semibold font-space-grotesk">Error loading summary data: {error}</p>
+          <p className="text-sm text-gray-500 mt-2 font-space-grotesk">Please try refreshing the page or contact support if the issue persists.</p>
         </div>
       </Card>
     );
@@ -190,41 +191,43 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
   if (!summaryData) {
     return (
-      <Card className="p-6">
+      <Card className="p-8 bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl">
         <div className="text-center text-gray-600">
-          <p>No summary data available</p>
+          <p className="font-space-grotesk">No summary data available</p>
         </div>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 font-space-grotesk">
       {/* Document Header */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                <FileText className="h-5 w-5 text-brand" />
+              </div>
               Document Overview
             </CardTitle>
-            <Badge className={getDocumentTypeColor(summaryData.document_type)}>
+            <Badge className={`${getDocumentTypeColor(summaryData.document_type)} rounded-full px-3 py-1 font-medium`}>
               {summaryData.document_type?.replace('_', ' ').toUpperCase()}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
               {summaryData.document_title || summaryData.file_name}
             </h3>
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
+            <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-brand" />
                 <span>Processed: {formatDate(summaryData.processing_date)}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Zap className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-brand" />
                 <span>Confidence: {Math.round((summaryData.confidence_score || 0) * 100)}%</span>
               </div>
             </div>
@@ -233,12 +236,12 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
       </Card>
 
       {/* Executive Summary */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
         <CardHeader>
-          <CardTitle>Executive Summary</CardTitle>
+          <CardTitle className="text-xl font-bold">Executive Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700 leading-relaxed">
+          <p className="text-gray-700 leading-relaxed text-base">
             {summaryData.executive_summary}
           </p>
         </CardContent>
@@ -246,34 +249,36 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
       {/* Enhanced Key Clauses with Rich Metadata */}
       {enhancedClauses && enhancedClauses.length > 0 && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                <FileText className="h-5 w-5 text-brand" />
+              </div>
               Enhanced Key Clauses
-              <Badge variant="outline" className="ml-2">Rich Metadata</Badge>
+              <Badge variant="outline" className="ml-auto border-brand/20 text-brand rounded-full">Rich Metadata</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="space-y-8">
               {enhancedClauses.map((clause, index) => (
-                <div key={index} className={`border rounded-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50 ${getRiskColor(clause.risk_level)}`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-gray-900">{clause.title}</h4>
-                    <div className="flex gap-2">
-                      <Badge variant={getRiskBadgeColor(clause.risk_level) as "destructive" | "secondary" | "outline"}>
+                <div key={index} className={`border rounded-2xl p-8 bg-gradient-to-r from-orange-50/50 to-brand-50/30 backdrop-blur-sm ${getRiskColor(clause.risk_level)} shadow-sm`}>
+                  <div className="flex items-center justify-between mb-6">
+                    <h4 className="text-xl font-bold text-gray-900">{clause.title}</h4>
+                    <div className="flex gap-3">
+                      <Badge variant={getRiskBadgeColor(clause.risk_level) as "destructive" | "secondary" | "outline"} className="rounded-full">
                         {clause.risk_level?.split(' - ')[0] || clause.risk_level}
                       </Badge>
-                      <Badge variant="outline" className={getConfidenceColor(clause.confidence_score).split(' ')[0]}>
+                      <Badge variant="outline" className={`${getConfidenceColor(clause.confidence_score).split(' ')[0]} rounded-full`}>
                         {Math.round(clause.confidence_score * 100)}% Confidence
                       </Badge>
                     </div>
                   </div>
                   
-                  <p className="text-gray-700 mb-4">{clause.content}</p>
+                  <p className="text-gray-700 mb-6 text-base leading-relaxed">{clause.content}</p>
                   
                   {/* Rich Metadata Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {renderMetadataField(
                       "Market Comparison", 
                       clause.metadata?.market_comparison,
@@ -282,7 +287,7 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                     {renderMetadataField(
                       "Implementation", 
                       clause.metadata?.implementation,
-                      <Target className="h-4 w-4 text-blue-600" />
+                      <Target className="h-4 w-4 text-brand" />
                     )}
                     {renderMetadataField(
                       "Risk Assessment", 
@@ -293,17 +298,17 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                   
                   {/* Supporting Quotes */}
                   {clause.supporting_quotes && clause.supporting_quotes.length > 0 && clause.supporting_quotes[0] && (
-                    <div className="mt-4 p-3 bg-white rounded border-l-4 border-blue-500">
-                      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Supporting Quote</div>
-                      <p className="text-sm italic text-gray-700">"{clause.supporting_quotes[0]}"</p>
+                    <div className="mt-6 p-4 bg-white/80 rounded-2xl border-l-4 border-brand shadow-sm">
+                      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2">Supporting Quote</div>
+                      <p className="text-sm italic text-gray-700 leading-relaxed">"{clause.supporting_quotes[0]}"</p>
                     </div>
                   )}
                   
                   {/* Quote from metadata if different */}
                   {clause.metadata?.quote && clause.metadata.quote !== clause.supporting_quotes?.[0] && (
-                    <div className="mt-2 p-3 bg-white rounded border-l-4 border-green-500">
-                      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Additional Quote</div>
-                      <p className="text-sm italic text-gray-700">"{clause.metadata.quote}"</p>
+                    <div className="mt-3 p-4 bg-white/80 rounded-2xl border-l-4 border-green-500 shadow-sm">
+                      <div className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2">Additional Quote</div>
+                      <p className="text-sm italic text-gray-700 leading-relaxed">"{clause.metadata.quote}"</p>
                     </div>
                   )}
                 </div>
@@ -315,19 +320,21 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
       {/* Enhanced Key Highlights */}
       {enhancedHighlights && enhancedHighlights.length > 0 && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-amber-600" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                <Zap className="h-5 w-5 text-brand" />
+              </div>
               Enhanced Key Highlights
-              <Badge variant="outline" className="ml-2">AI Enhanced</Badge>
+              <Badge variant="outline" className="ml-auto border-brand/20 text-brand rounded-full">AI Enhanced</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {enhancedHighlights.map((highlight, index) => (
-                <div key={index} className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border-l-4 border-amber-500">
-                  <p className="text-gray-700 text-sm font-medium" dangerouslySetInnerHTML={{ __html: highlight }} />
+                <div key={index} className="p-6 bg-gradient-to-r from-amber-50/50 to-orange-50/50 rounded-2xl border-l-4 border-brand shadow-sm backdrop-blur-sm">
+                  <p className="text-gray-700 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: highlight }} />
                 </div>
               ))}
             </div>
@@ -337,15 +344,15 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
       {/* Standard Key Highlights */}
       {summaryData.key_highlights && summaryData.key_highlights.length > 0 && (!enhancedHighlights || enhancedHighlights.length === 0) && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
           <CardHeader>
-            <CardTitle>Key Highlights</CardTitle>
+            <CardTitle className="text-xl font-bold">Key Highlights</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {summaryData.key_highlights.map((highlight, index) => (
-                <div key={index} className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                  <p className="text-gray-700 text-sm">{highlight}</p>
+                <div key={index} className="p-6 bg-brand-50/30 rounded-2xl border-l-4 border-brand shadow-sm backdrop-blur-sm">
+                  <p className="text-gray-700 leading-relaxed">{highlight}</p>
                 </div>
               ))}
             </div>
@@ -355,55 +362,57 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
 
       {/* Document Metrics */}
       {summaryData.document_metrics && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-green-600" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                <Clock className="h-5 w-5 text-brand" />
+              </div>
               Document Metrics
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {summaryData.document_metrics.estimated_pages || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Pages</div>
+                <div className="text-sm text-gray-600 font-medium">Pages</div>
               </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">
+              <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {summaryData.document_metrics.word_count?.toLocaleString() || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Words</div>
+                <div className="text-sm text-gray-600 font-medium">Words</div>
               </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">
+              <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {summaryData.document_metrics.processing_time_seconds 
                     ? `${Math.round(summaryData.document_metrics.processing_time_seconds)}s`
                     : 'N/A'
                   }
                 </div>
-                <div className="text-sm text-gray-600">Processing Time</div>
+                <div className="text-sm text-gray-600 font-medium">Processing Time</div>
               </div>
               {summaryData.document_metrics.ai_model_used && (
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-bold text-gray-900">
+                <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                  <div className="text-lg font-bold text-gray-900 mb-2">
                     {summaryData.document_metrics.ai_model_used}
                   </div>
-                  <div className="text-sm text-gray-600">AI Model</div>
+                  <div className="text-sm text-gray-600 font-medium">AI Model</div>
                 </div>
               )}
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-900">
+              <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">
                   {summaryData.document_metrics.context_sources_used || summaryData.context_sources_count || 0}
                 </div>
-                <div className="text-sm text-gray-600">Context Sources</div>
+                <div className="text-sm text-gray-600 font-medium">Context Sources</div>
               </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className={`text-2xl font-bold ${getConfidenceColor(summaryData.confidence_score || 0).split(' ')[0]}`}>
+              <div className="text-center p-6 bg-gray-50/50 rounded-2xl backdrop-blur-sm">
+                <div className={`text-3xl font-bold mb-2 ${getConfidenceColor(summaryData.confidence_score || 0).split(' ')[0]}`}>
                   {Math.round((summaryData.confidence_score || 0) * 100)}%
                 </div>
-                <div className="text-sm text-gray-600">Confidence</div>
+                <div className="text-sm text-gray-600 font-medium">Confidence</div>
               </div>
             </div>
           </CardContent>

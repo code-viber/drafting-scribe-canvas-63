@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, ArrowLeft } from "lucide-react";
+import { FileText, ArrowLeft, Home, ChevronRight, Wand2 } from "lucide-react";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import DocumentUpload from "../components/summarization/DocumentUpload";
 import ProgressSteps from "../components/summarization/ProgressSteps";
 import SummaryTab from "../components/summarization/SummaryTab";
@@ -387,41 +388,67 @@ const Summarization = () => {
   };
 
   return (
-    <div key={componentKey} className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div key={componentKey} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 font-space-grotesk">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <div className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/home" className="flex items-center gap-1 text-gray-600 hover:text-brand transition-colors">
+                  <Home className="h-4 w-4" />
+                  Home
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-gray-900 font-medium">Document Summarization</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          {/* Page Title */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-brand to-brand-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Wand2 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 font-space-grotesk">Document Summarization</h1>
+                  <p className="text-gray-600 mt-1">AI-powered document analysis and insights</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               <Button 
                 variant="outline" 
-                size="sm" 
                 onClick={handleBackToHome}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Document Summarization</span>
-              </div>
+              {stage === 'results' && (
+                <Button 
+                  onClick={handleStartOver}
+                  className="bg-brand hover:bg-brand-600 text-white rounded-xl font-medium shadow-sm"
+                >
+                  Start Over
+                </Button>
+              )}
             </div>
-            {stage === 'results' && (
-              <Button variant="outline" onClick={handleStartOver}>
-                Start Over
-              </Button>
-            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {error && (
-          <Card className="mb-6 p-4 bg-red-50 border-red-200">
-            <div className="text-red-800">
+          <Card className="mb-8 p-6 bg-red-50/80 backdrop-blur-sm border-red-100 rounded-2xl">
+            <div className="text-red-800 font-medium">
               <strong>Error:</strong> {error}
             </div>
           </Card>
@@ -443,45 +470,45 @@ const Summarization = () => {
             )}
 
             {stage === 'results' && requestId && completeSummaryData && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md">
-                    <TabsTrigger value="summary">Summary</TabsTrigger>
-                    <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
-                    <TabsTrigger value="financial">Financial Terms</TabsTrigger>
-                    <TabsTrigger value="quality">Quality</TabsTrigger>
-                    <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md rounded-2xl p-2 shadow-sm border border-gray-100">
+                    <TabsTrigger value="summary" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Summary</TabsTrigger>
+                    <TabsTrigger value="risk" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Risk Analysis</TabsTrigger>
+                    <TabsTrigger value="financial" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Financial Terms</TabsTrigger>
+                    <TabsTrigger value="quality" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Quality</TabsTrigger>
+                    <TabsTrigger value="audit" className="rounded-xl font-medium data-[state=active]:bg-brand data-[state=active]:text-white">Audit Trail</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="summary" className="mt-6">
+                  <TabsContent value="summary" className="mt-8">
                     <SummaryTab 
                       requestId={requestId} 
                       completeSummaryData={completeSummaryData}
                     />
                   </TabsContent>
 
-                  <TabsContent value="risk" className="mt-6">
+                  <TabsContent value="risk" className="mt-8">
                     <RiskAnalysisTab 
                       requestId={requestId} 
                       completeSummaryData={completeSummaryData}
                     />
                   </TabsContent>
 
-                  <TabsContent value="financial" className="mt-6">
+                  <TabsContent value="financial" className="mt-8">
                     <FinancialTermsTab 
                       requestId={requestId} 
                       completeSummaryData={completeSummaryData}
                     />
                   </TabsContent>
 
-                  <TabsContent value="quality" className="mt-6">
+                  <TabsContent value="quality" className="mt-8">
                     <QualityTab 
                       requestId={requestId} 
                       completeSummaryData={completeSummaryData}
                     />
                   </TabsContent>
 
-                  <TabsContent value="audit" className="mt-6">
+                  <TabsContent value="audit" className="mt-8">
                     <AuditTrailTab 
                       requestId={requestId} 
                       completeSummaryData={completeSummaryData}
