@@ -6,7 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Bot, User, Share, Eye, Loader2 } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
-
 interface ChatPanelProps {
   fileName: string;
   requestId?: string | null;
@@ -133,7 +132,7 @@ const ChatPanel = ({
   };
   return <>
       <div className="sticky top-8 z-10">
-        <Card className="h-[60vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-xl">
+        <Card className="h-[90vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-xl">
           <CardHeader className="pb-4 border-b border-gray-100">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 font-space-grotesk">
               <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
