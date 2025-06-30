@@ -132,8 +132,8 @@ const ChatPanel = ({
   };
   return <>
       <div className="sticky top-8 z-10">
-        <Card className="h-[90vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-xl">
-          <CardHeader className="pb-4 border-b border-gray-100">
+        <Card className="h-[60vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-lg">
+          <CardHeader className="pb-4 border-b border-gray-100 flex-shrink-0">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 font-space-grotesk">
               <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
                 <MessageSquare className="h-5 w-5 text-brand" />
@@ -154,53 +154,55 @@ const ChatPanel = ({
               </div>}
           </CardHeader>
           
-          <CardContent className="flex-1 flex flex-col p-0 py-[10px]">
-            {/* Messages with ScrollArea */}
-            <ScrollArea className="flex-1 px-[23px] py-px">
-              <div className="space-y-3 pr-3">
-                {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-brand text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'} px-4 py-3 shadow-sm`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        {msg.type === 'bot' ? <Bot className="h-3 w-3 opacity-70" /> : <User className="h-3 w-3 opacity-70" />}
-                        <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
+          <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+            {/* Messages with ScrollArea - constrained height */}
+            <div className="flex-1 min-h-0">
+              <ScrollArea className="h-full px-6 py-4">
+                <div className="space-y-3 pr-3">
+                  {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-brand text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'} px-4 py-3 shadow-sm`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          {msg.type === 'bot' ? <Bot className="h-3 w-3 opacity-70" /> : <User className="h-3 w-3 opacity-70" />}
+                          <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
+                        </div>
+                        <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
                       </div>
-                      <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
-                    </div>
-                  </div>)}
-                
-                {/* Loading indicator */}
-                {isLoading && <div className="flex justify-start">
-                    <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Bot className="h-3 w-3 opacity-70" />
-                        <span className="text-xs opacity-70 font-space-grotesk">now</span>
+                    </div>)}
+                  
+                  {/* Loading indicator */}
+                  {isLoading && <div className="flex justify-start">
+                      <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Bot className="h-3 w-3 opacity-70" />
+                          <span className="text-xs opacity-70 font-space-grotesk">now</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                          <span className="text-sm font-space-grotesk">Thinking...</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin text-brand" />
-                        <span className="text-sm font-space-grotesk">Thinking...</span>
+                    </div>}
+                  
+                  {/* Empty state */}
+                  {messages.length === 0 && <div className="flex items-center justify-center h-full min-h-[200px]">
+                      <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <MessageSquare className="h-8 w-8 text-brand" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
+                          Ready to Help
+                        </h3>
+                        <p className="text-gray-500 font-space-grotesk font-light">
+                          {requestId ? "Ask me anything about your document" : "Upload a document to start chatting"}
+                        </p>
                       </div>
-                    </div>
-                  </div>}
-                
-                {/* Empty state */}
-                {messages.length === 0 && <div className="flex items-center justify-center h-full">
-                    <div className="text-center p-8">
-                      <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <MessageSquare className="h-8 w-8 text-brand" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
-                        Ready to Help
-                      </h3>
-                      <p className="text-gray-500 font-space-grotesk font-light">
-                        {requestId ? "Ask me anything about your document" : "Upload a document to start chatting"}
-                      </p>
-                    </div>
-                  </div>}
-              </div>
-            </ScrollArea>
+                    </div>}
+                </div>
+              </ScrollArea>
+            </div>
             
-            {/* Input */}
-            <div className="p-4 border-t border-gray-100 py-[15px]">
+            {/* Input - fixed at bottom */}
+            <div className="p-4 border-t border-gray-100 flex-shrink-0">
               <div className="flex gap-3 items-end">
                 <div className="flex-1 relative">
                   <Input placeholder={requestId ? "Ask anything about the document..." : "Upload a document first..."} value={message} onChange={e => setMessage(e.target.value)} onKeyPress={handleKeyPress} className="rounded-2xl border-gray-200 bg-gray-50/50 px-4 py-3 font-space-grotesk placeholder:text-gray-400 focus:border-brand focus:ring-brand/20" disabled={!requestId || isLoading} />
