@@ -153,7 +153,7 @@ const ChatPanel = ({
               </div>}
           </CardHeader>
           
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 py-[10px]">
             {/* Messages */}
             <div className="flex-1 overflow-y-auto space-y-3 px-[23px] py-px">
               {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
