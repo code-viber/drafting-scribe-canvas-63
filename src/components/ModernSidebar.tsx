@@ -45,9 +45,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
           
           {isCollapsed && (
             <img 
-              src="/lovable-uploads/ab75498a-b915-4c60-bfd8-ad68628d9376.png" 
-              alt="QLaws.ai" 
-              className="h-8 w-auto mx-auto"
+              src="/lovable-uploads/20556907-3467-4c1d-849f-d0c607e5e9df.png" 
+              alt="QLaws" 
+              className="h-8 w-8 mx-auto object-contain"
             />
           )}
           
