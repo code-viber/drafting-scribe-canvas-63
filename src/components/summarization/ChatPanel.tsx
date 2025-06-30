@@ -131,7 +131,7 @@ const ChatPanel = ({
   };
   return <>
       <div className="sticky top-8 z-10">
-        <Card className="h-[700px] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-lg">
+        <Card className="h-[60vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-xl">
           <CardHeader className="pb-4 border-b border-gray-100">
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 font-space-grotesk">
               <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
@@ -197,7 +197,7 @@ const ChatPanel = ({
             </div>
             
             {/* Input */}
-            <div className="p-4 border-t border-gray-100 py-[20px]">
+            <div className="p-4 border-t border-gray-100 py-[15px]">
               <div className="flex gap-3 items-end">
                 <div className="flex-1 relative">
                   <Input placeholder={requestId ? "Ask anything about the document..." : "Upload a document first..."} value={message} onChange={e => setMessage(e.target.value)} onKeyPress={handleKeyPress} className="rounded-2xl border-gray-200 bg-gray-50/50 px-4 py-3 font-space-grotesk placeholder:text-gray-400 focus:border-brand focus:ring-brand/20" disabled={!requestId || isLoading} />
