@@ -135,11 +135,26 @@ const Home = () => {
   };
 
   const handleOpenDrafting = documentId => {
-    navigate('/drafting-workspace', {
-      state: {
-        documentId
-      }
-    });
+    // Check if this is a summary document
+    const document = documents.find(doc => doc.id === documentId);
+    
+    if (document && document.type === 'summary' && document.requestId) {
+      // Navigate to summarization page with the request ID and summary data
+      navigate('/summarization', {
+        state: {
+          requestId: document.requestId,
+          fileName: document.fileName,
+          showResults: true
+        }
+      });
+    } else {
+      // Regular document - navigate to drafting workspace
+      navigate('/drafting-workspace', {
+        state: {
+          documentId
+        }
+      });
+    }
   };
 
   const handleDeleteDocument = documentId => {

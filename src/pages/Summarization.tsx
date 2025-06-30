@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,6 +47,7 @@ const API_BASE_URL = 'http://localhost:8005';
 
 const Summarization = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [stage, setStage] = useState<ProcessingStage>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState('summary');
@@ -62,6 +63,18 @@ const Summarization = () => {
   const isPollingRef = useRef(false);
   const pollCountRef = useRef(0);
   const hasCompletedRef = useRef(false);
+
+  // Check if we're coming from home dashboard with existing summary data
+  useEffect(() => {
+    if (location.state?.showResults && location.state?.requestId) {
+      console.log('📋 Loading existing summary from home dashboard');
+      setRequestId(location.state.requestId);
+      setUploadedFile({ name: location.state.fileName } as File);
+      
+      // Try to fetch the complete summary data immediately
+      fetchCompleteSummary(location.state.requestId);
+    }
+  }, [location.state]);
 
   // Cleanup function to clear all intervals and timeouts
   const cleanup = () => {
@@ -401,17 +414,19 @@ const Summarization = () => {
       setTimeout(() => {
         setStage('results');
         
-        // Update localStorage with completed status
-        const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
-        const updatedSummaries = savedSummaries.map((summary: any) => 
-          summary.requestId === requestId 
-            ? { ...summary, status: 'Completed', summary: 'AI-generated summary completed' }
-            : summary
-        );
-        localStorage.setItem('savedSummaries', JSON.stringify(updatedSummaries));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('summarySaved'));
+        // Update localStorage with completed status if coming from new upload
+        if (!location.state?.showResults) {
+          const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
+          const updatedSummaries = savedSummaries.map((summary: any) => 
+            summary.requestId === requestId 
+              ? { ...summary, status: 'Completed', summary: 'AI-generated summary completed' }
+              : summary
+          );
+          localStorage.setItem('savedSummaries', JSON.stringify(updatedSummaries));
+          
+          // Dispatch custom event to notify other components
+          window.dispatchEvent(new CustomEvent('summarySaved'));
+        }
       }, 500);
       
     } catch (error) {
