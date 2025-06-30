@@ -176,15 +176,15 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex font-space-grotesk">
-      {/* Modern Sidebar */}
+    <div className="min-h-screen bg-gray-50 font-space-grotesk">
+      {/* Modern Sidebar - Fixed */}
       <ModernSidebar 
         items={sidebarItems} 
         onNavigate={handleSidebarNavigation} 
       />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content - With left margin to accommodate fixed sidebar */}
+      <div className="ml-72 flex flex-col">
         {/* Header with User Avatar */}
         <header className="bg-white border-b border-gray-100 px-8 py-6">
           <div className="max-w-6xl mx-auto flex items-center justify-between">

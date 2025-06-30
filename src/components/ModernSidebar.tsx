@@ -29,7 +29,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
     <TooltipProvider>
       <div className={`${
         isCollapsed ? 'w-20' : 'w-72'
-      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out relative shadow-sm h-screen fixed`}>
+      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out shadow-sm h-screen fixed left-0 top-0 z-40`}>
         
         {/* Logo and Toggle */}
         <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
