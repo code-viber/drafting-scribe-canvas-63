@@ -21,7 +21,7 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
   currentStep = 'Uploading', 
   progress = 0 
 }) => {
-  const getStepStatus = (stepName: string, progressThreshold: number, completedThreshold: number): 'pending' | 'processing' | 'completed' => {
+  const getStepStatus = (stepName: string, completedThreshold: number): 'pending' | 'processing' | 'completed' => {
     if (progress >= completedThreshold) return 'completed';
     if (currentStep === stepName) return 'processing';
     return 'pending';
@@ -31,19 +31,19 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
     {
       id: 'upload',
       label: 'Uploading Document',
-      status: getStepStatus('Uploading', 0, 20),
+      status: getStepStatus('Uploading', 20),
       icon: FileText
     },
     {
       id: 'analyze',
       label: 'Analyzing Content',
-      status: getStepStatus('Analyzing', 20, 60),
+      status: getStepStatus('Analyzing', 60),
       icon: Brain
     },
     {
       id: 'summarize',
       label: 'Generating Summary',
-      status: getStepStatus('Summarizing', 60, 100),
+      status: getStepStatus('Summarizing', 100),
       icon: CheckCircle
     }
   ];
@@ -91,31 +91,34 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
           <div className="space-y-4">
             {steps.map((step) => {
               const Icon = step.icon;
+              const isCompleted = step.status === 'completed';
+              const isProcessing = step.status === 'processing';
+              
               return (
                 <div 
                   key={step.id}
                   className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 ${
-                    step.status === 'completed' 
+                    isCompleted
                       ? 'bg-green-50 border border-green-100' 
-                      : step.status === 'processing'
+                      : isProcessing
                       ? 'bg-orange-50 border border-orange-100'
                       : 'bg-gray-50 border border-gray-100'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    step.status === 'completed'
+                    isCompleted
                       ? 'bg-green-100'
-                      : step.status === 'processing'
+                      : isProcessing
                       ? 'bg-orange-100'
                       : 'bg-gray-100'
                   }`}>
-                    {step.status === 'processing' ? (
+                    {isProcessing ? (
                       <Loader2 className="h-5 w-5 text-orange-600 animate-spin" />
                     ) : (
                       <Icon className={`h-5 w-5 ${
-                        step.status === 'completed'
+                        isCompleted
                           ? 'text-green-600'
-                          : step.status === 'processing'
+                          : isProcessing
                           ? 'text-orange-600'
                           : 'text-gray-400'
                       }`} />
@@ -124,27 +127,27 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
                   
                   <div className="flex-1">
                     <p className={`font-medium font-space-grotesk ${
-                      step.status === 'completed'
+                      isCompleted
                         ? 'text-green-900'
-                        : step.status === 'processing'
+                        : isProcessing
                         ? 'text-orange-900'
                         : 'text-gray-600'
                     }`}>
                       {step.label}
                     </p>
-                    {step.status === 'processing' && (
+                    {isProcessing && (
                       <p className="text-sm text-orange-600 font-space-grotesk mt-1">
                         In progress...
                       </p>
                     )}
-                    {step.status === 'completed' && (
+                    {isCompleted && (
                       <p className="text-sm text-green-600 font-space-grotesk mt-1">
                         Completed
                       </p>
                     )}
                   </div>
 
-                  {step.status === 'completed' && (
+                  {isCompleted && (
                     <CheckCircle className="h-5 w-5 text-green-600" />
                   )}
                 </div>
