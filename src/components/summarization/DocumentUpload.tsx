@@ -1,3 +1,4 @@
+
 import React, { useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ const DocumentUpload = ({
     event.preventDefault();
   }, []);
   return <div className="flex items-center justify-center min-h-[60vh]">
-      <Card className="w-full max-w-2xl bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
+      <Card className="w-full max-w-2xl bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-lg">
         <CardHeader className="text-center pb-6">
           <CardTitle className="text-2xl font-bold text-gray-900 font-space-grotesk">Upload Document for Summarization</CardTitle>
           
