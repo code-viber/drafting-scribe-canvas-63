@@ -110,14 +110,24 @@ const Summarization = () => {
 
       console.log('📤 Step 1: Calling summarize-ui API...');
       
-      // Step 1: Call the summarize-ui API to get request_id
+      // Step 1: Call the summarize-ui API to get request_id with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(`${API_BASE_URL}/api/summarize-ui`, {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+        // Check if it's a network error
+        if (response.status === 0 || !response.status) {
+          throw new Error('Unable to connect to the server. Please check if the backend service is running.');
+        }
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -163,7 +173,22 @@ const Summarization = () => {
 
     } catch (error) {
       console.error('❌ Error in Step 1 (summarize-ui):', error);
-      setError(error instanceof Error ? error.message : 'Upload failed');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Upload failed';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Upload timed out. Please try again with a smaller file or check your connection.';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Unable to connect to the server. Please ensure the backend service is running on localhost:8005.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error: Unable to reach the server. Please check if the backend is running and accessible.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
       setStage('upload');
       cleanup(); // Clean up any ongoing operations
     }
@@ -202,10 +227,18 @@ const Summarization = () => {
 
       try {
         console.log(`📊 Step 2.${pollCountRef.current}: Polling progress for request ${requestId}`);
-        const response = await fetch(`${API_BASE_URL}/api/progress/${requestId}`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per request
+        
+        const response = await fetch(`${API_BASE_URL}/api/progress/${requestId}`, {
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error(`Progress fetch failed: ${response.statusText}`);
+          throw new Error(`Progress fetch failed: ${response.status} ${response.statusText}`);
         }
 
         const progress = await response.json();
@@ -298,8 +331,18 @@ const Summarization = () => {
         
         // Only set error if we're still actively polling (not cancelled)
         if (isPollingRef.current && !hasCompletedRef.current) {
+          let errorMessage = 'Failed to track progress';
+          if (error instanceof Error) {
+            if (error.name === 'AbortError') {
+              errorMessage = 'Progress tracking timed out. Please try again.';
+            } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+              errorMessage = 'Lost connection to server during processing. Please check if the backend is still running.';
+            } else {
+              errorMessage = `Failed to track progress: ${error.message}`;
+            }
+          }
           cleanup();
-          setError(`Failed to track progress: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          setError(errorMessage);
         }
       }
     };
@@ -332,10 +375,18 @@ const Summarization = () => {
   const fetchCompleteSummary = async (requestId: string) => {
     try {
       console.log('📥 Step 3: Fetching complete summary data...');
-      const response = await fetch(`${API_BASE_URL}/api/complete-summary/${requestId}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      const response = await fetch(`${API_BASE_URL}/api/complete-summary/${requestId}`, {
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch complete summary: ${response.statusText}`);
+        throw new Error(`Failed to fetch complete summary: ${response.status} ${response.statusText}`);
       }
 
       const completeData = await response.json();
@@ -363,7 +414,19 @@ const Summarization = () => {
       
     } catch (error) {
       console.error('❌ Error in Step 3 (complete-summary):', error);
-      setError(`Failed to fetch complete summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      let errorMessage = 'Failed to fetch complete summary';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Summary fetch timed out. Please try again.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Unable to fetch summary data. Please check server connection.';
+        } else {
+          errorMessage = `Failed to fetch complete summary: ${error.message}`;
+        }
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -450,6 +513,12 @@ const Summarization = () => {
           <Card className="mb-8 p-6 bg-red-50/80 backdrop-blur-sm border-red-100 rounded-2xl">
             <div className="text-red-800 font-medium">
               <strong>Error:</strong> {error}
+              {error.includes('localhost:8005') && (
+                <div className="mt-2 text-sm text-red-700">
+                  <p>Make sure the backend server is running on port 8005.</p>
+                  <p>You can check if it's running by visiting: <code className="bg-red-100 px-1 rounded">http://localhost:8005</code></p>
+                </div>
+              )}
             </div>
           </Card>
         )}

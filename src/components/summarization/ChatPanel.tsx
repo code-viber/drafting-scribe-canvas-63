@@ -57,6 +57,9 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
     setIsLoading(true);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(`${API_BASE_URL}/api/chat/${requestId}`, {
         method: 'POST',
         headers: {
@@ -66,10 +69,13 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
           message: userMessage.content,
           context: 'document_analysis'
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`Chat request failed: ${response.statusText}`);
+        throw new Error(`Chat request failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -85,16 +91,26 @@ const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
     } catch (error) {
       console.error('Error sending chat message:', error);
       
-      // Fallback to mock response for better user experience
-      let fallbackResponse = 'I apologize, but I\'m having trouble connecting to the server. Please try again later.';
+      // Provide more specific error messages
+      let fallbackResponse = 'I apologize, but I\'m having trouble connecting to the server.';
       
-      const lowerMessage = userMessage.content.toLowerCase();
-      if (lowerMessage.includes('clause') || lowerMessage.includes('term')) {
-        fallbackResponse = 'I understand you\'re asking about clauses or terms. Once the connection is restored, I\'ll be able to provide detailed analysis of the document\'s specific clauses.';
-      } else if (lowerMessage.includes('risk')) {
-        fallbackResponse = 'You\'re asking about risks. When the service is available, I can analyze the document\'s risk factors in detail.';
-      } else if (lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
-        fallbackResponse = 'You want a summary or overview. I\'ll be able to provide comprehensive document insights once the connection is restored.';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          fallbackResponse = 'The request timed out. Please try again with a shorter message.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+          fallbackResponse = 'Unable to connect to the chat service. Please check if the backend server is running on localhost:8005.';
+        } else if (error.message.includes('500')) {
+          fallbackResponse = 'The server encountered an error processing your message. Please try again.';
+        } else {
+          const lowerMessage = userMessage.content.toLowerCase();
+          if (lowerMessage.includes('clause') || lowerMessage.includes('term')) {
+            fallbackResponse = 'I understand you\'re asking about clauses or terms. Once the connection is restored, I\'ll be able to provide detailed analysis of the document\'s specific clauses.';
+          } else if (lowerMessage.includes('risk')) {
+            fallbackResponse = 'You\'re asking about risks. When the service is available, I can analyze the document\'s risk factors in detail.';
+          } else if (lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
+            fallbackResponse = 'You want a summary or overview. I\'ll be able to provide comprehensive document insights once the connection is restored.';
+          }
+        }
       }
 
       const errorResponse: ChatMessage = {
