@@ -29,7 +29,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
     <TooltipProvider>
       <div className={`${
         isCollapsed ? 'w-20' : 'w-72'
-      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out relative shadow-sm h-screen`}>
+      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out relative shadow-sm h-screen fixed`}>
         
         {/* Logo and Toggle */}
         <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
@@ -65,8 +65,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
           </Button>
         </div>
         
-        {/* Navigation - Scrollable */}
-        <nav className="flex-1 p-4 overflow-y-auto">
+        {/* Navigation - Fixed, no scroll */}
+        <nav className="flex-1 p-4 flex flex-col justify-between">
           <div className="space-y-2">
             {items.map(item => {
               const Icon = item.icon;
@@ -107,11 +107,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
               return NavButton;
             })}
           </div>
-        </nav>
-        
-        {/* Bottom Items - Fixed */}
-        <div className="p-4 border-t border-gray-100 flex-shrink-0">
-          <div className="space-y-2 mb-4">
+          
+          {/* Bottom Items - Integrated into navigation */}
+          <div className="space-y-2">
             {bottomItems.map(item => {
               const Icon = item.icon;
               const BottomButton = (
@@ -145,7 +143,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
               return BottomButton;
             })}
           </div>
-          
+        </nav>
+        
+        {/* Copyright - Fixed at bottom */}
+        <div className="p-4 border-t border-gray-100 flex-shrink-0">
           <div className="text-xs text-gray-400 text-center font-space-grotesk">
             {isCollapsed ? '© 2024' : '© 2024 QLaws.ai'}
           </div>
