@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, Bot, User, Share, Eye, Loader2 } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
+
 interface ChatPanelProps {
   fileName: string;
   requestId?: string | null;
@@ -154,47 +156,49 @@ const ChatPanel = ({
           </CardHeader>
           
           <CardContent className="flex-1 flex flex-col p-0 py-[10px]">
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto space-y-3 px-[23px] py-px">
-              {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-brand text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'} px-4 py-3 shadow-sm`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      {msg.type === 'bot' ? <Bot className="h-3 w-3 opacity-70" /> : <User className="h-3 w-3 opacity-70" />}
-                      <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
+            {/* Messages with ScrollArea */}
+            <ScrollArea className="flex-1 px-[23px] py-px">
+              <div className="space-y-3 pr-3">
+                {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-brand text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'} px-4 py-3 shadow-sm`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        {msg.type === 'bot' ? <Bot className="h-3 w-3 opacity-70" /> : <User className="h-3 w-3 opacity-70" />}
+                        <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
+                      </div>
+                      <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
                     </div>
-                    <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
-                  </div>
-                </div>)}
-              
-              {/* Loading indicator */}
-              {isLoading && <div className="flex justify-start">
-                  <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Bot className="h-3 w-3 opacity-70" />
-                      <span className="text-xs opacity-70 font-space-grotesk">now</span>
+                  </div>)}
+                
+                {/* Loading indicator */}
+                {isLoading && <div className="flex justify-start">
+                    <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Bot className="h-3 w-3 opacity-70" />
+                        <span className="text-xs opacity-70 font-space-grotesk">now</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                        <span className="text-sm font-space-grotesk">Thinking...</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-3 w-3 animate-spin text-brand" />
-                      <span className="text-sm font-space-grotesk">Thinking...</span>
+                  </div>}
+                
+                {/* Empty state */}
+                {messages.length === 0 && <div className="flex items-center justify-center h-full">
+                    <div className="text-center p-8">
+                      <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <MessageSquare className="h-8 w-8 text-brand" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
+                        Ready to Help
+                      </h3>
+                      <p className="text-gray-500 font-space-grotesk font-light">
+                        {requestId ? "Ask me anything about your document" : "Upload a document to start chatting"}
+                      </p>
                     </div>
-                  </div>
-                </div>}
-              
-              {/* Empty state */}
-              {messages.length === 0 && <div className="flex items-center justify-center h-full">
-                  <div className="text-center p-8">
-                    <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <MessageSquare className="h-8 w-8 text-brand" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
-                      Ready to Help
-                    </h3>
-                    <p className="text-gray-500 font-space-grotesk font-light">
-                      {requestId ? "Ask me anything about your document" : "Upload a document to start chatting"}
-                    </p>
-                  </div>
-                </div>}
-            </div>
+                  </div>}
+              </div>
+            </ScrollArea>
             
             {/* Input */}
             <div className="p-4 border-t border-gray-100 py-[15px]">
