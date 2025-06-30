@@ -30,7 +30,7 @@ const DocumentUpload = ({
           <CardTitle className="text-2xl font-bold text-gray-900 font-space-grotesk">Upload Document for Summarization</CardTitle>
           
         </CardHeader>
-        <CardContent className="p-8">
+        <CardContent className="p-8 my-0 py-0">
           <div className="border-2 border-dashed border-gray-200 rounded-2xl p-16 text-center hover:border-brand/40 hover:bg-brand/5 transition-all duration-300 cursor-pointer bg-gray-50/30 backdrop-blur-sm group" onDrop={handleDrop} onDragOver={handleDragOver}>
             <div className="w-20 h-20 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-brand/20 transition-colors duration-300">
               <Upload className="h-10 w-10 text-brand group-hover:scale-110 transition-transform duration-300" />
