@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Bot, User, Share, Eye, Loader2, Sparkles, FileSearch, Calendar, AlertTriangle } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Share, Eye, Loader2 } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
 interface ChatPanelProps {
@@ -27,22 +26,9 @@ const ChatPanel = ({
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const quickCommands = [{
-    label: "Summarize All",
-    icon: FileSearch,
-    prompt: "Please provide a comprehensive summary of the entire document"
-  }, {
-    label: "Find Risky Clauses",
-    icon: AlertTriangle,
-    prompt: "Identify and explain any risky clauses or terms in this document"
-  }, {
-    label: "Extract Key Dates",
-    icon: Calendar,
-    prompt: "Extract all important dates and deadlines from this document"
-  }];
   useEffect(() => {
-    // Initialize with enhanced welcome message
-    const welcomeMessage = fileName && requestId ? `Hello! I'm Lexi, your AI legal assistant. I've analyzed "${fileName}" and I'm ready to help you understand the summary, identify risks, or explain any complex terms. What would you like to know?` : "Hello! I'm Lexi, your AI legal assistant. I can help you understand document analysis results. Please upload a document to get started, and I'll be here to answer any questions about the insights.";
+    // Initialize with welcome message
+    const welcomeMessage = fileName && requestId ? `Hello! I've analyzed "${fileName}". Feel free to ask me any questions about the summary, risks, or recommendations.` : "Hello! I can help you understand anything about document analysis. Please upload a document to get started, and I'll be here to answer any questions about the results.";
     setMessages([{
       id: 1,
       type: 'bot',
@@ -54,19 +40,12 @@ const ChatPanel = ({
       })
     }]);
   }, [fileName, requestId]);
-  const handleQuickCommand = (prompt: string) => {
-    if (!requestId) return;
-    setMessage(prompt);
-    // Auto-send the message
-    setTimeout(() => handleSendMessage(prompt), 100);
-  };
-  const handleSendMessage = async (customMessage?: string) => {
-    const messageToSend = customMessage || message;
-    if (!messageToSend.trim() || !requestId) return;
+  const handleSendMessage = async () => {
+    if (!message.trim() || !requestId) return;
     const userMessage: ChatMessage = {
       id: messages.length + 1,
       type: 'user',
-      content: messageToSend,
+      content: message,
       timestamp: new Date().toLocaleTimeString('en-US', {
         hour12: false,
         hour: '2-digit',
@@ -78,7 +57,8 @@ const ChatPanel = ({
     setIsLoading(true);
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(`${API_BASE_URL}/api/chat/${requestId}`, {
         method: 'POST',
         headers: {
@@ -108,6 +88,8 @@ const ChatPanel = ({
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Error sending chat message:', error);
+
+      // Provide more specific error messages
       let fallbackResponse = 'I apologize, but I\'m having trouble connecting to the server.';
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
@@ -117,7 +99,7 @@ const ChatPanel = ({
         } else if (error.message.includes('500')) {
           fallbackResponse = 'The server encountered an error processing your message. Please try again.';
         } else {
-          const lowerMessage = message.toLowerCase();
+          const lowerMessage = userMessage.content.toLowerCase();
           if (lowerMessage.includes('clause') || lowerMessage.includes('term')) {
             fallbackResponse = 'I understand you\'re asking about clauses or terms. Once the connection is restored, I\'ll be able to provide detailed analysis of the document\'s specific clauses.';
           } else if (lowerMessage.includes('risk')) {
@@ -150,85 +132,61 @@ const ChatPanel = ({
   };
   return <>
       <div className="sticky top-8 z-10">
-        <Card className="h-[60vh] flex flex-col bg-white/90 backdrop-blur-sm border-gray-100 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="h-[60vh] flex flex-col bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-lg">
           <CardHeader className="pb-4 border-b border-gray-100 flex-shrink-0">
-            {/* Enhanced Assistant Header with Avatar */}
             <CardTitle className="flex items-center gap-3 text-xl font-bold text-gray-900 font-space-grotesk">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand-600 rounded-xl flex items-center justify-center shadow-sm">
-                  <Bot className="h-5 w-5 text-white" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
+                <MessageSquare className="h-5 w-5 text-brand" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  Lexi
-                  <Badge variant="secondary" className="bg-brand/10 text-brand text-xs">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    AI Assistant
-                  </Badge>
-                </div>
-                <p className="text-sm font-normal text-gray-600 mt-1">Your Legal Analysis Partner</p>
-              </div>
+              AI Assistant
             </CardTitle>
             
-            {/* Action Buttons */}
+            {/* Action Buttons - only show when document is uploaded */}
             {fileName && requestId && <div className="flex gap-3 pt-4">
-                <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk transition-all duration-200 hover:scale-105">
+                <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk">
                   <Eye className="h-4 w-4" />
                   Preview Report
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setIsShareOpen(true)} className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk transition-all duration-200 hover:scale-105">
+                <Button variant="outline" size="sm" onClick={() => setIsShareOpen(true)} className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk">
                   <Share className="h-4 w-4" />
                   Share Report
                 </Button>
               </div>}
-
-            {/* Quick Command Chips */}
-            {fileName && requestId}
           </CardHeader>
           
           <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-            {/* Enhanced Messages with Better Styling */}
+            {/* Messages with ScrollArea - constrained height */}
             <div className="flex-1 min-h-0">
               <ScrollArea className="h-full px-6 py-4">
-                <div className="space-y-4 pr-3">
+                <div className="space-y-3 pr-3">
                   {messages.map(msg => <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-gradient-to-r from-brand to-brand-600 text-white rounded-2xl rounded-br-md shadow-sm' : 'bg-gray-50 text-gray-900 rounded-2xl rounded-bl-md shadow-sm border border-gray-100'} px-4 py-3`}>
-                        <div className="flex items-center gap-2 mb-2">
-                          {msg.type === 'bot' ? <div className="w-5 h-5 bg-brand/10 rounded-full flex items-center justify-center">
-                              <Bot className="h-3 w-3 text-brand" />
-                            </div> : <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
-                              <User className="h-3 w-3 text-white" />
-                            </div>}
-                          <span className={`text-xs font-space-grotesk ${msg.type === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
-                            {msg.type === 'bot' ? 'Lexi' : 'You'} • {msg.timestamp}
-                          </span>
+                      <div className={`max-w-[85%] ${msg.type === 'user' ? 'bg-brand text-white rounded-2xl rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'} px-4 py-3 shadow-sm`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          {msg.type === 'bot' ? <Bot className="h-3 w-3 opacity-70" /> : <User className="h-3 w-3 opacity-70" />}
+                          <span className="text-xs opacity-70 font-space-grotesk">{msg.timestamp}</span>
                         </div>
                         <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
                       </div>
                     </div>)}
                   
-                  {/* Enhanced Loading indicator */}
+                  {/* Loading indicator */}
                   {isLoading && <div className="flex justify-start">
-                      <div className="max-w-[85%] bg-gray-50 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-gray-100">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-5 h-5 bg-brand/10 rounded-full flex items-center justify-center">
-                            <Bot className="h-3 w-3 text-brand" />
-                          </div>
-                          <span className="text-xs text-gray-500 font-space-grotesk">Lexi • now</span>
+                      <div className="max-w-[85%] bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Bot className="h-3 w-3 opacity-70" />
+                          <span className="text-xs opacity-70 font-space-grotesk">now</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-brand" />
-                          <span className="text-sm font-space-grotesk">Analyzing your request...</span>
+                          <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                          <span className="text-sm font-space-grotesk">Thinking...</span>
                         </div>
                       </div>
                     </div>}
                   
-                  {/* Enhanced Empty state */}
+                  {/* Empty state */}
                   {messages.length === 0 && <div className="flex items-center justify-center h-full min-h-[200px]">
                       <div className="text-center p-8">
-                        <div className="w-16 h-16 bg-gradient-to-br from-brand/10 to-brand/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                           <MessageSquare className="h-8 w-8 text-brand" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2 font-space-grotesk">
@@ -243,13 +201,13 @@ const ChatPanel = ({
               </ScrollArea>
             </div>
             
-            {/* Enhanced Input Section */}
-            <div className="p-4 border-t border-gray-100 flex-shrink-0 bg-gray-50/50">
+            {/* Input - fixed at bottom */}
+            <div className="p-4 border-t border-gray-100 flex-shrink-0">
               <div className="flex gap-3 items-end">
                 <div className="flex-1 relative">
-                  <Input placeholder={requestId ? "Ask me about clauses, risks, terms..." : "Upload a document first..."} value={message} onChange={e => setMessage(e.target.value)} onKeyPress={handleKeyPress} className="rounded-2xl border-gray-200 bg-white px-4 py-3 font-space-grotesk placeholder:text-gray-400 focus:border-brand focus:ring-brand/20 shadow-sm" disabled={!requestId || isLoading} />
+                  <Input placeholder={requestId ? "Ask anything about the document..." : "Upload a document first..."} value={message} onChange={e => setMessage(e.target.value)} onKeyPress={handleKeyPress} className="rounded-2xl border-gray-200 bg-gray-50/50 px-4 py-3 font-space-grotesk placeholder:text-gray-400 focus:border-brand focus:ring-brand/20" disabled={!requestId || isLoading} />
                 </div>
-                <Button onClick={() => handleSendMessage()} disabled={!message.trim() || !requestId || isLoading} className="bg-brand hover:bg-brand-600 text-white p-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105">
+                <Button onClick={handleSendMessage} disabled={!message.trim() || !requestId || isLoading} className="bg-brand hover:bg-brand-600 text-white p-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                   {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </Button>
               </div>
@@ -262,6 +220,7 @@ const ChatPanel = ({
       </div>
 
       <ShareDialog isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} fileName={fileName} />
+      
       <ReportPreview isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} fileName={fileName} />
     </>;
 };
