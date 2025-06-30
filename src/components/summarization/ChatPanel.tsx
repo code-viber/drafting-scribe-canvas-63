@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,8 +35,8 @@ const ChatPanel = ({
   useEffect(() => {
     // Initialize with enhanced welcome message
     const welcomeMessage = fileName && requestId 
-      ? `Hello! I'm Lexi, your AI legal assistant. I've analyzed "${fileName}" and I'm ready to help you understand the summary, identify risks, or explain any complex terms. What would you like to know?`
-      : "Hello! I'm Lexi, your AI legal assistant. I can help you understand document analysis results. Please upload a document to get started, and I'll be here to answer any questions about the insights.";
+      ? `Hello! I'm Qyn, your AI legal assistant. I've analyzed "${fileName}" and I'm ready to help you understand the summary, identify risks, or explain any complex terms. What would you like to know?`
+      : "Hello! I'm Qyn, your AI legal assistant. I can help you understand document analysis results. Please upload a document to get started, and I'll be here to answer any questions about the insights.";
     
     setMessages([{
       id: 1,
@@ -168,7 +167,7 @@ const ChatPanel = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  Lexi
+                  Qyn
                   <Badge variant="secondary" className="bg-brand/10 text-brand text-xs">
                     <Sparkles className="h-3 w-3 mr-1" />
                     AI Assistant
@@ -226,7 +225,7 @@ const ChatPanel = ({
                             </div>
                           )}
                           <span className={`text-xs font-space-grotesk ${msg.type === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
-                            {msg.type === 'bot' ? 'Lexi' : 'You'} • {msg.timestamp}
+                            {msg.type === 'bot' ? 'Qyn' : 'You'} • {msg.timestamp}
                           </span>
                         </div>
                         <p className="text-sm leading-relaxed font-space-grotesk">{msg.content}</p>
@@ -242,7 +241,7 @@ const ChatPanel = ({
                           <div className="w-5 h-5 bg-brand/10 rounded-full flex items-center justify-center">
                             <Bot className="h-3 w-3 text-brand" />
                           </div>
-                          <span className="text-xs text-gray-500 font-space-grotesk">Lexi • now</span>
+                          <span className="text-xs text-gray-500 font-space-grotesk">Qyn • now</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Loader2 className="h-4 w-4 animate-spin text-brand" />
