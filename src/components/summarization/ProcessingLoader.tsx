@@ -21,23 +21,29 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
   currentStep = 'Uploading', 
   progress = 0 
 }) => {
+  const getStepStatus = (stepName: string, progressThreshold: number, completedThreshold: number): 'pending' | 'processing' | 'completed' => {
+    if (progress >= completedThreshold) return 'completed';
+    if (currentStep === stepName) return 'processing';
+    return 'pending';
+  };
+
   const steps: ProcessingStep[] = [
     {
       id: 'upload',
       label: 'Uploading Document',
-      status: progress >= 20 ? 'completed' : currentStep === 'Uploading' ? 'processing' : 'pending',
+      status: getStepStatus('Uploading', 0, 20),
       icon: FileText
     },
     {
       id: 'analyze',
       label: 'Analyzing Content',
-      status: progress >= 60 ? 'completed' : currentStep === 'Analyzing' ? 'processing' : 'pending',
+      status: getStepStatus('Analyzing', 20, 60),
       icon: Brain
     },
     {
       id: 'summarize',
       label: 'Generating Summary',
-      status: progress >= 100 ? 'completed' : currentStep === 'Summarizing' ? 'processing' : 'pending',
+      status: getStepStatus('Summarizing', 60, 100),
       icon: CheckCircle
     }
   ];
@@ -83,7 +89,7 @@ const ProcessingLoader: React.FC<ProcessingLoaderProps> = ({
 
           {/* Processing Steps */}
           <div className="space-y-4">
-            {steps.map((step, index) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               return (
                 <div 
