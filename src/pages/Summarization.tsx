@@ -41,7 +41,7 @@ interface CompleteSummaryData {
   audit_trail_tab: any;
 }
 
-const API_BASE_URL = 'http://localhost:8005';
+const API_BASE_URL = 'http://44.211.87.191:8005';
 
 const Summarization = () => {
   const navigate = useNavigate();
