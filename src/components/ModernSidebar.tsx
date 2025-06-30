@@ -29,10 +29,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
     <TooltipProvider>
       <div className={`${
         isCollapsed ? 'w-20' : 'w-72'
-      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out relative shadow-sm`}>
+      } bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-out relative shadow-sm h-screen`}>
         
         {/* Logo and Toggle */}
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
               <img 
@@ -65,8 +65,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
           </Button>
         </div>
         
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-2">
             {items.map(item => {
               const Icon = item.icon;
@@ -109,8 +109,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({ items, onNavigate }) => {
           </div>
         </nav>
         
-        {/* Bottom Items */}
-        <div className="p-4 border-t border-gray-100">
+        {/* Bottom Items - Fixed */}
+        <div className="p-4 border-t border-gray-100 flex-shrink-0">
           <div className="space-y-2 mb-4">
             {bottomItems.map(item => {
               const Icon = item.icon;

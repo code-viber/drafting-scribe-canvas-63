@@ -1,9 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown } from 'lucide-react';
+import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ModernSidebar from '@/components/ModernSidebar';
 import ModernDocumentCard from '@/components/ModernDocumentCard';
 
@@ -189,16 +197,29 @@ const Home = () => {
               </p>
             </div>
             
-            {/* User Profile */}
+            {/* User Profile Dropdown */}
             <div className="flex items-center space-x-3">
-              <div className="relative">
-                <button className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50 transition-colors">
-                  <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center shadow-lg">
-                    <User className="h-5 w-5 text-white" />
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                </button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center shadow-lg">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+                  <DropdownMenuItem className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span className="font-space-grotesk font-medium">Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-gray-100" />
+                  <DropdownMenuItem className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 cursor-pointer text-red-600">
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-space-grotesk font-medium">Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
