@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Bot, User, Share, Eye, Loader2, Sparkles, FileSearch, Calendar, AlertTriangle } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Share, Eye, Loader2, Sparkles } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
 
@@ -32,12 +33,6 @@ const ChatPanel = ({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const quickCommands = [
-    { label: "Summarize All", icon: FileSearch, prompt: "Please provide a comprehensive summary of the entire document" },
-    { label: "Find Risky Clauses", icon: AlertTriangle, prompt: "Identify and explain any risky clauses or terms in this document" },
-    { label: "Extract Key Dates", icon: Calendar, prompt: "Extract all important dates and deadlines from this document" },
-  ];
-
   useEffect(() => {
     // Initialize with enhanced welcome message
     const welcomeMessage = fileName && requestId 
@@ -55,13 +50,6 @@ const ChatPanel = ({
       })
     }]);
   }, [fileName, requestId]);
-
-  const handleQuickCommand = (prompt: string) => {
-    if (!requestId) return;
-    setMessage(prompt);
-    // Auto-send the message
-    setTimeout(() => handleSendMessage(prompt), 100);
-  };
 
   const handleSendMessage = async (customMessage?: string) => {
     const messageToSend = customMessage || message;
@@ -211,27 +199,6 @@ const ChatPanel = ({
                   <Share className="h-4 w-4" />
                   Share Report
                 </Button>
-              </div>
-            )}
-
-            {/* Quick Command Chips */}
-            {fileName && requestId && (
-              <div className="pt-4 border-t border-gray-100 mt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3 font-space-grotesk">Quick Commands:</p>
-                <div className="flex flex-wrap gap-2">
-                  {quickCommands.map((cmd, index) => (
-                    <Button
-                      key={index}
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleQuickCommand(cmd.prompt)}
-                      className="h-8 px-3 text-xs rounded-full border-brand/20 text-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-200 font-space-grotesk"
-                    >
-                      <cmd.icon className="h-3 w-3 mr-1" />
-                      {cmd.label}
-                    </Button>
-                  ))}
-                </div>
               </div>
             )}
           </CardHeader>
