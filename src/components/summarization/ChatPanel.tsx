@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ interface ChatMessage {
   timestamp: string;
 }
 
-const API_BASE_URL = 'http://44.211.87.191:8005';
+const API_BASE_URL = 'http://localhost:8005';
 
 const ChatPanel = ({ fileName, requestId }: ChatPanelProps) => {
   const [message, setMessage] = useState('');
