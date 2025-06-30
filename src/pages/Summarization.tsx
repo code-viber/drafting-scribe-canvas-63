@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, ArrowLeft, Home, ChevronRight, Wand2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FileText, ArrowLeft, Home, ChevronRight, Wand2, Sparkles, HelpCircle, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import DocumentUpload from "../components/summarization/DocumentUpload";
 import ProgressSteps from "../components/summarization/ProgressSteps";
@@ -453,11 +454,11 @@ const Summarization = () => {
 
   return (
     <div key={componentKey} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/30 font-space-grotesk">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-4">
+      {/* Enhanced Header with improved spacing and visual hierarchy */}
+      <div className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-3">
+          {/* Tightened Breadcrumb */}
+          <Breadcrumb className="mb-3">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink href="/home" className="flex items-center gap-1 text-gray-600 hover:text-orange-600 transition-colors">
@@ -474,7 +475,7 @@ const Summarization = () => {
             </BreadcrumbList>
           </Breadcrumb>
           
-          {/* Page Title */}
+          {/* Enhanced Page Title with badges and visual elements */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
@@ -482,8 +483,14 @@ const Summarization = () => {
                   <Wand2 className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 font-space-grotesk">Document Summarization</h1>
-                  <p className="text-gray-600 mt-1">AI-powered document analysis and insights</p>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h1 className="text-3xl font-bold text-gray-900 font-space-grotesk">Document Summarization</h1>
+                    <Badge variant="secondary" className="bg-orange-100 text-orange-700 font-medium">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      AI-Powered
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600">AI-powered document analysis and insights</p>
                 </div>
               </div>
             </div>
@@ -499,7 +506,7 @@ const Summarization = () => {
               {stage === 'results' && (
                 <Button 
                   onClick={handleStartOver}
-                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium shadow-sm"
+                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200"
                 >
                   Start Over
                 </Button>
@@ -511,7 +518,7 @@ const Summarization = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {error && (
-          <Card className="mb-8 p-6 bg-red-50/80 backdrop-blur-sm border-red-100 rounded-2xl">
+          <Card className="mb-8 p-6 bg-red-50/80 backdrop-blur-sm border-red-100 rounded-2xl shadow-sm">
             <div className="text-red-800 font-medium">
               <strong>Error:</strong> {error}
               {error.includes('localhost:8005') && (
@@ -524,8 +531,9 @@ const Summarization = () => {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content - Document Results */}
+        {/* Enhanced Two-Column Grid Layout with better spacing */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Main Content - Document Results with enhanced visual hierarchy */}
           <div className="lg:col-span-2">
             {stage === 'upload' && (
               <DocumentUpload onFileUpload={handleFileUpload} />
@@ -543,11 +551,11 @@ const Summarization = () => {
               <div className="space-y-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-md rounded-2xl p-2 shadow-sm border border-gray-100">
-                    <TabsTrigger value="summary" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Summary</TabsTrigger>
-                    <TabsTrigger value="risk" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Risk Analysis</TabsTrigger>
-                    <TabsTrigger value="financial" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Financial Terms</TabsTrigger>
-                    <TabsTrigger value="quality" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Quality</TabsTrigger>
-                    <TabsTrigger value="audit" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white">Audit Trail</TabsTrigger>
+                    <TabsTrigger value="summary" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">Summary</TabsTrigger>
+                    <TabsTrigger value="risk" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">Risk Analysis</TabsTrigger>
+                    <TabsTrigger value="financial" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">Financial Terms</TabsTrigger>
+                    <TabsTrigger value="quality" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">Quality</TabsTrigger>
+                    <TabsTrigger value="audit" className="rounded-xl font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">Audit Trail</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="summary" className="mt-8">
@@ -585,11 +593,31 @@ const Summarization = () => {
                     />
                   </TabsContent>
                 </Tabs>
+
+                {/* Feedback Section */}
+                <Card className="p-6 bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 font-space-grotesk">Was this summary helpful?</h3>
+                      <p className="text-sm text-gray-600 mt-1">Your feedback helps us improve our AI analysis</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="rounded-xl hover:bg-green-50 hover:border-green-200 transition-colors">
+                        <ThumbsUp className="h-4 w-4 mr-1" />
+                        Yes
+                      </Button>
+                      <Button variant="outline" size="sm" className="rounded-xl hover:bg-red-50 hover:border-red-200 transition-colors">
+                        <ThumbsDown className="h-4 w-4 mr-1" />
+                        No
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
               </div>
             )}
           </div>
 
-          {/* Right Sidebar - Chat Always Visible */}
+          {/* Right Sidebar - Enhanced Chat Panel */}
           <div className="lg:col-span-1">
             <ChatPanel 
               fileName={uploadedFile?.name || ''} 
@@ -597,6 +625,17 @@ const Summarization = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Floating Help Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          size="icon"
+          className="w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          title="Need help?"
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   );
