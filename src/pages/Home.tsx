@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles } from 'lucide-react';
+import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -162,13 +162,13 @@ const Home = () => {
   };
 
   const promptSuggestions = [
-    "Draft an NDA for a SaaS company",
-    "Create a service agreement for consulting",
-    "Generate an employment contract"
+    "Draft NDA for SaaS",
+    "Employment Contract",
+    "Service Agreement"
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 flex font-inter">
+    <div className="min-h-screen bg-gray-50 flex font-space-grotesk">
       {/* Modern Sidebar */}
       <ModernSidebar 
         items={sidebarItems} 
@@ -177,22 +177,27 @@ const Home = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white/40 backdrop-blur-xl border-b border-white/20 px-8 py-6">
+        {/* Header with User Avatar */}
+        <header className="bg-white border-b border-gray-100 px-8 py-6">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 font-inter">
-                Welcome to QlawsAI
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 font-space-grotesk">
+                Welcome to QLaws.ai
               </h1>
-              <p className="text-gray-600 font-inter font-light">
+              <p className="text-gray-500 font-space-grotesk font-normal">
                 Create professional legal documents with AI-powered assistance
               </p>
             </div>
             
             {/* User Profile */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                <User className="h-5 w-5 text-white" />
+              <div className="relative">
+                <button className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50 transition-colors">
+                  <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center shadow-lg">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </button>
               </div>
             </div>
           </div>
@@ -201,24 +206,24 @@ const Home = () => {
         {/* Main Area */}
         <main className="flex-1 px-8 py-8">
           <div className="max-w-6xl mx-auto">
-            {/* Enhanced Input Section */}
+            {/* Enhanced Pill-shaped Input Section */}
             <div className="mb-16">
-              <div className="bg-white/40 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-xl shadow-blue-500/5">
+              <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-card">
                 <form onSubmit={handleSubmit} className="relative">
                   <div className="relative">
                     <div className="absolute left-6 top-1/2 transform -translate-y-1/2">
-                      <Sparkles className="h-6 w-6 text-blue-500" />
+                      <Sparkles className="h-6 w-6 text-brand" />
                     </div>
                     <Input 
                       value={inputPrompt} 
                       onChange={e => setInputPrompt(e.target.value)} 
                       onKeyPress={handleKeyPress} 
                       placeholder="What legal document would you like to create today?"
-                      className="w-full h-16 pl-16 pr-20 text-lg border-0 bg-white/60 backdrop-blur-sm rounded-2xl focus:ring-2 focus:ring-blue-500/20 font-inter placeholder:text-gray-400 shadow-sm" 
+                      className="w-full h-16 pl-16 pr-20 text-lg border-0 bg-gray-50/50 rounded-full focus:ring-2 focus:ring-brand/20 font-space-grotesk placeholder:text-gray-400 shadow-inner" 
                     />
                     <Button 
                       type="submit" 
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-inter font-medium"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-brand hover:bg-brand-600 transition-all duration-200 font-space-grotesk font-medium"
                       disabled={!inputPrompt.trim()}
                     >
                       <Send className="h-4 w-4 mr-2" />
@@ -229,12 +234,12 @@ const Home = () => {
                 
                 {/* Suggestion Pills */}
                 <div className="flex flex-wrap gap-3 mt-6">
-                  <span className="text-sm text-gray-500 font-inter font-medium">Try:</span>
+                  <span className="text-sm text-gray-400 font-space-grotesk font-medium">Try:</span>
                   {promptSuggestions.map((suggestion, index) => (
                     <button
                       key={index}
                       onClick={() => setInputPrompt(suggestion)}
-                      className="px-4 py-2 bg-white/60 hover:bg-white/80 text-gray-700 rounded-full text-sm font-inter font-medium transition-all duration-200 border border-white/30 hover:shadow-sm"
+                      className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full text-sm font-space-grotesk font-medium transition-all duration-200 border border-gray-200"
                     >
                       {suggestion}
                     </button>
@@ -246,8 +251,8 @@ const Home = () => {
             {/* Documents Section */}
             <div>
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 font-inter">Recent Documents</h2>
-                <Badge variant="outline" className="text-sm font-inter font-medium px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border-white/30">
+                <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Recent Documents</h2>
+                <Badge variant="outline" className="text-sm font-space-grotesk font-medium px-4 py-2 rounded-full bg-white border-gray-200">
                   {documents.length} documents
                 </Badge>
               </div>
@@ -266,19 +271,19 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="text-center py-20">
-                  <div className="w-32 h-32 bg-gradient-to-br from-blue-100/50 to-purple-100/50 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
-                    <FileText className="h-16 w-16 text-blue-400" />
+                  <div className="w-32 h-32 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <FileText className="h-16 w-16 text-brand" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 font-inter">No documents yet</h3>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto font-inter font-light leading-relaxed">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 font-space-grotesk">No documents yet</h3>
+                  <p className="text-gray-500 mb-8 max-w-md mx-auto font-space-grotesk font-normal leading-relaxed">
                     Enter a prompt above to start drafting your first legal document with AI assistance.
                   </p>
-                  <div className="bg-white/40 backdrop-blur-xl border border-white/20 rounded-2xl p-8 max-w-md mx-auto">
-                    <h4 className="font-semibold text-blue-900 mb-3 font-inter flex items-center justify-center gap-2">
+                  <div className="bg-white border border-gray-100 rounded-2xl p-8 max-w-md mx-auto shadow-card">
+                    <h4 className="font-semibold text-brand mb-3 font-space-grotesk flex items-center justify-center gap-2">
                       <Sparkles className="h-4 w-4" />
                       Quick Tip
                     </h4>
-                    <p className="text-sm text-blue-800 font-inter font-light leading-relaxed">
+                    <p className="text-sm text-gray-600 font-space-grotesk font-normal leading-relaxed">
                       Try prompts like "Draft an NDA for a tech startup" or "Create a service agreement for consulting work"
                     </p>
                   </div>
