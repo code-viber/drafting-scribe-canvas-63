@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown, LogOut } from 'lucide-react';
+import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown, LogOut, ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Card, CardContent } from '@/components/ui/card';
 import ModernSidebar from '@/components/ModernSidebar';
 import ModernDocumentCard from '@/components/ModernDocumentCard';
 
@@ -190,6 +191,48 @@ const Home = () => {
     "Service Agreement"
   ];
 
+  // Feature cards data
+  const featureCards = [
+    {
+      id: 'summarization',
+      title: 'Document Summarization',
+      description: 'Upload and analyze legal documents with AI-powered summarization and risk assessment',
+      icon: FileText,
+      path: '/summarization',
+      color: 'bg-blue-50 border-blue-200',
+      iconColor: 'text-blue-600',
+      available: true
+    },
+    {
+      id: 'drafting',
+      title: 'Document Drafting',
+      description: 'Create professional legal documents with AI assistance and templates',
+      icon: Edit3,
+      path: '/drafting-workspace',
+      color: 'bg-emerald-50 border-emerald-200',
+      iconColor: 'text-emerald-600',
+      available: false,
+      comingSoon: true
+    },
+    {
+      id: 'workflows',
+      title: 'Legal Workflows',
+      description: 'Automate your legal processes with custom workflows and approval chains',
+      icon: Workflow,
+      path: '/workflows',
+      color: 'bg-purple-50 border-purple-200',
+      iconColor: 'text-purple-600',
+      available: false,
+      comingSoon: true
+    }
+  ];
+
+  const handleFeatureCardClick = (card) => {
+    if (card.available) {
+      navigate(card.path);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-space-grotesk">
       {/* Modern Sidebar - Fixed */}
@@ -284,47 +327,58 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Documents Section */}
+            {/* Feature Cards Section */}
             <div>
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Recent Documents</h2>
+                <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Explore Features</h2>
                 <Badge variant="outline" className="text-sm font-space-grotesk font-medium px-4 py-2 rounded-full bg-white border-gray-200">
-                  {documents.length} documents
+                  AI-Powered Tools
                 </Badge>
               </div>
 
-              {documents.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {documents.map(doc => (
-                    <ModernDocumentCard
-                      key={doc.id}
-                      doc={doc}
-                      onOpen={handleOpenDrafting}
-                      onDelete={handleDeleteDocument}
-                      getStatusColor={getStatusColor}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20">
-                  <div className="w-32 h-32 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-8">
-                    <FileText className="h-16 w-16 text-brand" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 font-space-grotesk">No documents yet</h3>
-                  <p className="text-gray-500 mb-8 max-w-md mx-auto font-space-grotesk font-normal leading-relaxed">
-                    Enter a prompt above to start drafting your first legal document with AI assistance.
-                  </p>
-                  <div className="bg-white border border-gray-100 rounded-2xl p-8 max-w-md mx-auto shadow-card">
-                    <h4 className="font-semibold text-brand mb-3 font-space-grotesk flex items-center justify-center gap-2">
-                      <Sparkles className="h-4 w-4" />
-                      Quick Tip
-                    </h4>
-                    <p className="text-sm text-gray-600 font-space-grotesk font-normal leading-relaxed">
-                      Try prompts like "Draft an NDA for a tech startup" or "Create a service agreement for consulting work"
-                    </p>
-                  </div>
-                </div>
-              )}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {featureCards.map(card => (
+                  <Card 
+                    key={card.id}
+                    className={`${card.color} transition-all duration-300 hover:shadow-lg cursor-pointer border-2 ${card.available ? 'hover:scale-105' : 'opacity-75'}`}
+                    onClick={() => handleFeatureCardClick(card)}
+                  >
+                    <CardContent className="p-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 ${card.color.includes('blue') ? 'border-blue-300' : card.color.includes('emerald') ? 'border-emerald-300' : 'border-purple-300'}`}>
+                          <card.icon className={`h-7 w-7 ${card.iconColor}`} />
+                        </div>
+                        {card.comingSoon && (
+                          <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs font-space-grotesk font-medium px-3 py-1 rounded-full">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Coming Soon
+                          </Badge>
+                        )}
+                        {card.available && (
+                          <ArrowRight className={`h-5 w-5 ${card.iconColor} transition-transform duration-200 group-hover:translate-x-1`} />
+                        )}
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 font-space-grotesk">
+                        {card.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 font-space-grotesk font-normal leading-relaxed">
+                        {card.description}
+                      </p>
+                      
+                      {card.available && (
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                          <div className="flex items-center text-sm font-space-grotesk font-medium">
+                            <span className={card.iconColor}>Get Started</span>
+                            <ArrowRight className={`h-4 w-4 ml-2 ${card.iconColor}`} />
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </main>
