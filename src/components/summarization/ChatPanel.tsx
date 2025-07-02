@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Bot, User, Share, Eye, Loader2, Sparkles } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Share, Loader2, Sparkles, Eye } from "lucide-react";
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
 
@@ -177,18 +177,9 @@ const ChatPanel = ({
               </div>
             </CardTitle>
             
-            {/* Action Buttons */}
+            {/* Action Buttons - Only show Share Report when summary is generated */}
             {fileName && requestId && (
               <div className="flex gap-3 pt-4">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setIsPreviewOpen(true)} 
-                  className="flex items-center gap-2 border-gray-200 hover:bg-gray-50 rounded-xl font-medium font-space-grotesk transition-all duration-200 hover:scale-105"
-                >
-                  <Eye className="h-4 w-4" />
-                  Preview Report
-                </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
