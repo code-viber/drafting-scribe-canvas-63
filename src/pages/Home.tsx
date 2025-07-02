@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown, LogOut, ArrowRight, Clock } from 'lucide-react';
@@ -199,8 +198,8 @@ const Home = () => {
       description: 'Upload and analyze legal documents with AI-powered summarization and risk assessment',
       icon: FileText,
       path: '/summarization',
-      color: 'bg-blue-50 border-blue-200',
-      iconColor: 'text-blue-600',
+      color: 'bg-brand-50 border-brand-200',
+      iconColor: 'text-brand-600',
       available: true
     },
     {
@@ -209,8 +208,8 @@ const Home = () => {
       description: 'Create professional legal documents with AI assistance and templates',
       icon: Edit3,
       path: '/drafting-workspace',
-      color: 'bg-emerald-50 border-emerald-200',
-      iconColor: 'text-emerald-600',
+      color: 'bg-brand-50 border-brand-200',
+      iconColor: 'text-brand-600',
       available: false,
       comingSoon: true
     },
@@ -220,8 +219,8 @@ const Home = () => {
       description: 'Automate your legal processes with custom workflows and approval chains',
       icon: Workflow,
       path: '/workflows',
-      color: 'bg-purple-50 border-purple-200',
-      iconColor: 'text-purple-600',
+      color: 'bg-brand-50 border-brand-200',
+      iconColor: 'text-brand-600',
       available: false,
       comingSoon: true
     }
@@ -345,7 +344,7 @@ const Home = () => {
                   >
                     <CardContent className="p-8">
                       <div className="flex items-start justify-between mb-6">
-                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 ${card.color.includes('blue') ? 'border-blue-300' : card.color.includes('emerald') ? 'border-emerald-300' : 'border-purple-300'}`}>
+                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 border-brand-300`}>
                           <card.icon className={`h-7 w-7 ${card.iconColor}`} />
                         </div>
                         {card.comingSoon && (
