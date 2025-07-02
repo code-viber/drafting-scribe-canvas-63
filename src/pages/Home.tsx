@@ -208,8 +208,8 @@ const Home = () => {
       description: 'Create professional legal documents with AI assistance and templates',
       icon: Edit3,
       path: '/drafting-workspace',
-      color: 'bg-brand-50 border-brand-200',
-      iconColor: 'text-brand-600',
+      color: 'bg-white border-gray-200',
+      iconColor: 'text-gray-600',
       available: false,
       comingSoon: true
     },
@@ -219,8 +219,8 @@ const Home = () => {
       description: 'Automate your legal processes with custom workflows and approval chains',
       icon: Workflow,
       path: '/workflows',
-      color: 'bg-brand-50 border-brand-200',
-      iconColor: 'text-brand-600',
+      color: 'bg-white border-gray-200',
+      iconColor: 'text-gray-600',
       available: false,
       comingSoon: true
     }
@@ -344,7 +344,7 @@ const Home = () => {
                   >
                     <CardContent className="p-8">
                       <div className="flex items-start justify-between mb-6">
-                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 border-brand-300`}>
+                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 ${card.id === 'summarization' ? 'border-brand-300' : 'border-gray-300'}`}>
                           <card.icon className={`h-7 w-7 ${card.iconColor}`} />
                         </div>
                         {card.comingSoon && (
