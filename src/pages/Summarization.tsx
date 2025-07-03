@@ -580,9 +580,12 @@ const Summarization = () => {
             )}
           </div>
 
-          {/* Right Sidebar - Enhanced Chat Panel */}
+          {/* Right Sidebar - Enhanced Chat Panel - Always visible */}
           <div className="lg:col-span-1">
-            <ChatPanel fileName={uploadedFile?.name || ''} />
+            <ChatPanel 
+              fileName={uploadedFile?.name || ''} 
+              requestId={requestId || undefined}
+            />
           </div>
         </div>
       </div>
