@@ -1,17 +1,53 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Calendar, Clock, Zap, Loader2, Info, TrendingUp, Target } from 'lucide-react';
+import { FileText, Calendar, Clock, Zap, Loader2, Info, TrendingUp, Target, User, Hash } from 'lucide-react';
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, User, Hash } from "lucide-react";
+// Type definitions
+interface SummaryData {
+  document_type: string;
+  document_title: string;
+  file_name: string;
+  processing_date: string;
+  confidence_score: number;
+  executive_summary: string;
+  key_highlights: string[];
+  document_metrics?: {
+    estimated_pages: number;
+    word_count: number;
+    processing_time_seconds: number;
+    ai_model_used: string;
+    context_sources_used: number;
+  };
+  context_sources_count?: number;
+}
+
+interface EnhancedKeyClause {
+  title: string;
+  content: string;
+  risk_level: string;
+  confidence_score: number;
+  supporting_quotes: string[];
+  metadata?: {
+    market_comparison?: string;
+    implementation?: string;
+    quote?: string;
+  };
+}
 
 interface SummaryTabProps {
-  fileName: string;
+  requestId: string;
+  completeSummaryData?: {
+    summary_tab: SummaryData;
+    quality_tab?: {
+      review_feedback?: {
+        improved_summary?: {
+          key_clauses: EnhancedKeyClause[];
+          key_highlights: string[];
+        };
+      };
+    };
+  };
 }
 
 const API_BASE_URL = 'http://localhost:8005';
@@ -165,6 +201,8 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
           <p className="font-space-grotesk">No summary data available</p>
         </div>
       </Card>
+    );
+  }
 
   return (
     <div className="space-y-8 font-space-grotesk">
@@ -201,6 +239,7 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
           </div>
         </CardContent>
       </Card>
+
       {/* Executive Summary */}
       <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
         <CardHeader>
@@ -322,9 +361,10 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                 </div>
               ))}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Document Metrics */}
       {summaryData.document_metrics && (
         <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
@@ -380,9 +420,9 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                 <div className="text-sm text-gray-600 font-medium">Confidence</div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

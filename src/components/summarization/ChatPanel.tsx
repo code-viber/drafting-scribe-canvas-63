@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,16 @@ import { MessageSquare, Send, Bot, User, Share, Loader2, Sparkles, Eye } from "l
 import ShareDialog from "./ShareDialog";
 import ReportPreview from "./ReportPreview";
 
+interface ChatMessage {
+  id: number;
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: string;
+}
+
 interface ChatPanelProps {
   fileName: string;
+  requestId?: string;
 }
 
 const API_BASE_URL = 'http://localhost:8005';

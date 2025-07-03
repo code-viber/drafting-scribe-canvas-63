@@ -18,12 +18,26 @@ import ProcessingLoader from "../components/summarization/ProcessingLoader";
 
 type ProcessingStage = 'upload' | 'processing' | 'results';
 
+const API_BASE_URL = 'http://localhost:8005';
+
 const Summarization = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [stage, setStage] = useState<ProcessingStage>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState('summary');
+  const [error, setError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [progressData, setProgressData] = useState<any>(null);
+  const [completeSummaryData, setCompleteSummaryData] = useState<any>(null);
+  const [componentKey, setComponentKey] = useState(0);
+  
+  // Refs for polling management
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isPollingRef = useRef(false);
+  const hasCompletedRef = useRef(false);
+  const pollCountRef = useRef(0);
   // Check if we're coming from home dashboard with existing summary data
   useEffect(() => {
     if (location.state?.showResults && location.state?.requestId) {
@@ -122,6 +136,9 @@ const Summarization = () => {
         message: 'Document uploaded. Processing started...',
         completed: false
       });
+      
+      // Start progress polling
+      startProgressPolling(newRequestId);
       
       // Save summarized document to localStorage
       const summarizedDocument = {
@@ -524,31 +541,19 @@ const Summarization = () => {
                   </TabsContent>
 
                   <TabsContent value="risk" className="mt-8">
-                    <RiskAnalysisTab 
-                      requestId={requestId} 
-                      completeSummaryData={completeSummaryData}
-                    />
+                    <RiskAnalysisTab />
                   </TabsContent>
 
                   <TabsContent value="financial" className="mt-8">
-                    <FinancialTermsTab 
-                      requestId={requestId} 
-                      completeSummaryData={completeSummaryData}
-                    />
+                    <FinancialTermsTab />
                   </TabsContent>
 
                   <TabsContent value="quality" className="mt-8">
-                    <QualityTab 
-                      requestId={requestId} 
-                      completeSummaryData={completeSummaryData}
-                    />
+                    <QualityTab />
                   </TabsContent>
 
                   <TabsContent value="audit" className="mt-8">
-                    <AuditTrailTab 
-                      requestId={requestId} 
-                      completeSummaryData={completeSummaryData}
-                    />
+                    <AuditTrailTab />
                   </TabsContent>
                 </Tabs>
 
