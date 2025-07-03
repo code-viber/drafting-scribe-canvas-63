@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Calendar, CreditCard, TrendingUp } from "lucide-react";
+import { DollarSign, TrendingUp, Target } from "lucide-react";
 
 const FinancialTermsTab = () => {
   const financialTerms = [
@@ -29,72 +29,85 @@ const FinancialTermsTab = () => {
     }
   ];
 
-  const paymentSchedule = [
-    { month: "April 2024", amount: "$15,000", status: "Pending" },
-    { month: "May 2024", amount: "$15,000", status: "Scheduled" },
-    { month: "June 2024", amount: "$15,000", status: "Scheduled" },
-    { month: "July 2024", amount: "$15,000", status: "Scheduled" },
-  ];
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active': return 'default';
       case 'Completed': return 'secondary';
       case 'Conditional': return 'outline';
-      case 'Pending': return 'destructive';
-      case 'Scheduled': return 'secondary';
       default: return 'outline';
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Financial Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <DollarSign className="h-5 w-5 text-green-600" />
-              Total Contract Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">$185,000</div>
-            <p className="text-sm text-gray-600">12-month term</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              Payment Frequency
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">Monthly</div>
-            <p className="text-sm text-gray-600">$15,000 per month</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <CreditCard className="h-5 w-5 text-purple-600" />
-              Payment Terms
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">Net 30</div>
-            <p className="text-sm text-gray-600">Days from invoice</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Financial Terms Details */}
+      {/* Financial Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Financial Terms</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-green-600" />
+            Financial Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">$185,000</div>
+              <p className="text-sm text-gray-600">Total Contract Value</p>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">Monthly</div>
+              <p className="text-sm text-gray-600">Payment Frequency</p>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">Net 30</div>
+              <p className="text-sm text-gray-600">Payment Terms</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Enhanced Financial Analysis */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+            Enhanced Financial Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+              <h4 className="font-medium text-blue-800 mb-2">Cash Flow Impact</h4>
+              <p className="text-sm text-blue-700">
+                Monthly payment of $15,000 creates predictable cash flow obligations. 
+                Setup fee front-loads initial costs but provides long-term value stability.
+              </p>
+            </div>
+            <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+              <h4 className="font-medium text-green-800 mb-2">Risk Assessment</h4>
+              <p className="text-sm text-green-700">
+                Net 30 payment terms are industry standard. Late payment penalties 
+                provide reasonable protection against payment delays.
+              </p>
+            </div>
+            <div className="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400">
+              <h4 className="font-medium text-amber-800 mb-2">Cost Optimization</h4>
+              <p className="text-sm text-amber-700">
+                12-month commitment offers cost predictability. Consider negotiating 
+                volume discounts for extended terms beyond initial contract period.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Financial Terms */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-purple-600" />
+            Key Financial Terms
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -124,61 +137,6 @@ const FinancialTermsTab = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Payment Schedule */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Upcoming Payment Schedule
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {paymentSchedule.map((payment, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <div className="font-medium">{payment.month}</div>
-                  <div className="text-sm text-gray-600">Monthly service fee</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-lg">{payment.amount}</div>
-                  <Badge variant={getStatusColor(payment.status) as any} className="text-xs">
-                    {payment.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Financial Obligations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Key Financial Obligations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-              <h4 className="font-medium text-blue-800">Client Obligations</h4>
-              <ul className="text-sm text-blue-700 mt-1 list-disc list-inside">
-                <li>Pay monthly fees within 30 days of invoice</li>
-                <li>Cover any third-party costs with prior approval</li>
-                <li>Provide required documentation for billing</li>
-              </ul>
-            </div>
-            <div className="p-3 bg-green-50 rounded-lg border-l-4 border-green-400">
-              <h4 className="font-medium text-green-800">Service Provider Obligations</h4>
-              <ul className="text-sm text-green-700 mt-1 list-disc list-inside">
-                <li>Deliver services as specified in SOW</li>
-                <li>Provide detailed monthly invoices</li>
-                <li>Maintain cost transparency and reporting</li>
-              </ul>
-            </div>
           </div>
         </CardContent>
       </Card>
