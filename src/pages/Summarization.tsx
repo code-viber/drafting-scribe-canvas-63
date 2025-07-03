@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
@@ -18,7 +19,7 @@ import ProcessingLoader from "../components/summarization/ProcessingLoader";
 
 type ProcessingStage = 'upload' | 'processing' | 'results';
 
-const API_BASE_URL = 'http://localhost:8005';
+const API_BASE_URL = 'http://44.211.87.191:8005';
 
 const Summarization = () => {
   const navigate = useNavigate();
@@ -506,9 +507,9 @@ const Summarization = () => {
           </Card>
         )}
 
-        {/* Enhanced Two-Column Grid Layout with better spacing */}
+        {/* Enhanced Two-Column Grid Layout - ALWAYS ACTIVE */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Main Content - Document Results with enhanced visual hierarchy */}
+          {/* Main Content - Always spans 2 columns */}
           <div className="lg:col-span-2">
             {stage === 'upload' && (
               <DocumentUpload onFileUpload={handleFileUpload} />
@@ -580,7 +581,7 @@ const Summarization = () => {
             )}
           </div>
 
-          {/* Right Sidebar - Enhanced Chat Panel - Always visible */}
+          {/* Right Sidebar - Enhanced Chat Panel - Always visible and always spans 1 column */}
           <div className="lg:col-span-1">
             <ChatPanel 
               fileName={uploadedFile?.name || ''} 
