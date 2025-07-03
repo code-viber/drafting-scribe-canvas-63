@@ -1,11 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit3, FileText, Vault, Workflow, Send, Download, Trash2, Eye, Home as HomeIcon } from 'lucide-react';
+import { Edit3, FileText, Vault, Workflow, Send, Home as HomeIcon, User, Sparkles, ChevronDown, LogOut, ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Card, CardContent } from '@/components/ui/card';
+import ModernSidebar from '@/components/ModernSidebar';
+import ModernDocumentCard from '@/components/ModernDocumentCard';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -127,11 +135,26 @@ const Home = () => {
   };
 
   const handleOpenDrafting = documentId => {
-    navigate('/drafting-workspace', {
-      state: {
-        documentId
-      }
-    });
+    // Check if this is a summary document
+    const document = documents.find(doc => doc.id === documentId);
+    
+    if (document && document.type === 'summary' && document.requestId) {
+      // Navigate to summarization page with the request ID and summary data
+      navigate('/summarization', {
+        state: {
+          requestId: document.requestId,
+          fileName: document.fileName,
+          showResults: true
+        }
+      });
+    } else {
+      // Regular document - navigate to drafting workspace
+      navigate('/drafting-workspace', {
+        state: {
+          documentId
+        }
+      });
+    }
   };
 
   const handleDeleteDocument = documentId => {
@@ -151,156 +174,216 @@ const Home = () => {
   const getStatusColor = status => {
     switch (status) {
       case 'Draft':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-amber-100/80 text-amber-700';
       case 'Review':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100/80 text-blue-700';
       case 'Final':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-100/80 text-emerald-700';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100/80 text-gray-700';
     }
   };
 
-  return <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Edit3 className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">Qlaws AI</span>
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            {sidebarItems.map(item => {
-            const Icon = item.icon;
-            return <button 
-                key={item.id} 
-                onClick={() => handleSidebarNavigation(item)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${item.active ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>;
-          })}
-          </div>
-        </nav>
-        
-        <div className="p-4 border-t border-gray-100">
-          <div className="text-xs text-gray-500 text-center">
-            © 2024 LegalDraft AI
-          </div>
-        </div>
-      </div>
+  const promptSuggestions = [
+    "Draft NDA for SaaS",
+    "Employment Contract",
+    "Service Agreement"
+  ];
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to QlawsAI</h1>
-            <p className="text-gray-600">Create professional legal documents with AI-powered assistance</p>
+  // Feature cards data
+  const featureCards = [
+    {
+      id: 'summarization',
+      title: 'Document Summarization',
+      description: 'Upload and analyze legal documents with AI-powered summarization and risk assessment',
+      icon: FileText,
+      path: '/summarization',
+      color: 'bg-brand-50 border-brand-200',
+      iconColor: 'text-brand-600',
+      available: true
+    },
+    {
+      id: 'drafting',
+      title: 'Document Drafting',
+      description: 'Create professional legal documents with AI assistance and templates',
+      icon: Edit3,
+      path: '/drafting-workspace',
+      color: 'bg-white border-gray-200',
+      iconColor: 'text-gray-600',
+      available: false,
+      comingSoon: true
+    },
+    {
+      id: 'workflows',
+      title: 'Legal Workflows',
+      description: 'Automate your legal processes with custom workflows and approval chains',
+      icon: Workflow,
+      path: '/workflows',
+      color: 'bg-white border-gray-200',
+      iconColor: 'text-gray-600',
+      available: false,
+      comingSoon: true
+    }
+  ];
+
+  const handleFeatureCardClick = (card) => {
+    if (card.available) {
+      navigate(card.path);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-space-grotesk">
+      {/* Modern Sidebar - Fixed */}
+      <ModernSidebar 
+        items={sidebarItems} 
+        onNavigate={handleSidebarNavigation} 
+      />
+
+      {/* Main Content - With left margin to accommodate fixed sidebar */}
+      <div className="ml-72 flex flex-col">
+        {/* Header with User Avatar */}
+        <header className="bg-white border-b border-gray-100 px-8 py-6">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 font-space-grotesk">
+                Welcome to QLaws.ai
+              </h1>
+              <p className="text-gray-500 font-space-grotesk font-normal">
+                Create professional legal documents with AI-powered assistance
+              </p>
+            </div>
+            
+            {/* User Profile Dropdown */}
+            <div className="flex items-center space-x-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-3 p-2 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center shadow-lg">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg">
+                  <DropdownMenuItem className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span className="font-space-grotesk font-medium">Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-gray-100" />
+                  <DropdownMenuItem className="flex items-center space-x-2 px-4 py-3 hover:bg-gray-50 cursor-pointer text-red-600">
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-space-grotesk font-medium">Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </header>
 
         {/* Main Area */}
         <main className="flex-1 px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Input Section */}
-            <div className="mb-12">
-              <form onSubmit={handleSubmit} className="relative">
-                <div className="relative">
-                  <Input value={inputPrompt} onChange={e => setInputPrompt(e.target.value)} onKeyPress={handleKeyPress} placeholder="Draft an NDA for a SaaS company, Create a service agreement for marketing services, Generate an employment contract..." className="w-full h-14 pl-6 pr-16 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 shadow-sm" />
-                  <Button type="submit" className="absolute right-2 top-2 h-10 px-4 rounded-lg" disabled={!inputPrompt.trim()}>
-                    <Send className="h-4 w-4" />
-                  </Button>
+          <div className="max-w-6xl mx-auto">
+            {/* Enhanced Pill-shaped Input Section */}
+            <div className="mb-16">
+              <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-card">
+                <form onSubmit={handleSubmit} className="relative">
+                  <div className="relative">
+                    <div className="absolute left-6 top-1/2 transform -translate-y-1/2">
+                      <Sparkles className="h-6 w-6 text-brand" />
+                    </div>
+                    <Input 
+                      value={inputPrompt} 
+                      onChange={e => setInputPrompt(e.target.value)} 
+                      onKeyPress={handleKeyPress} 
+                      placeholder="What legal document would you like to create today?"
+                      className="w-full h-16 pl-16 pr-20 text-lg border-0 bg-gray-50/50 rounded-full focus:ring-2 focus:ring-brand/20 font-space-grotesk placeholder:text-gray-400 shadow-inner" 
+                    />
+                    <Button 
+                      type="submit" 
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-brand hover:bg-brand-600 transition-all duration-200 font-space-grotesk font-medium"
+                      disabled={!inputPrompt.trim()}
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Create
+                    </Button>
+                  </div>
+                </form>
+                
+                {/* Suggestion Pills */}
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <span className="text-sm text-gray-400 font-space-grotesk font-medium">Try:</span>
+                  {promptSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setInputPrompt(suggestion)}
+                      className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full text-sm font-space-grotesk font-medium transition-all duration-200 border border-gray-200"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
                 </div>
-              </form>
-              <p className="text-sm text-gray-500 mt-3 text-center">
-                Enter a prompt to start drafting your legal document with AI assistance
-              </p>
+              </div>
             </div>
 
-            {/* Generated Documents Section */}
+            {/* Feature Cards Section */}
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">Recent Documents</h2>
-                <Badge variant="outline" className="text-sm">
-                  {documents.length} documents
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Explore Features</h2>
+                <Badge variant="outline" className="text-sm font-space-grotesk font-medium px-4 py-2 rounded-full bg-white border-gray-200">
+                  AI-Powered Tools
                 </Badge>
               </div>
 
-              {documents.length > 0 ? <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {documents.map(doc => <Card key={doc.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                            {doc.title}
-                          </CardTitle>
-                          <Badge className={`text-xs ${getStatusColor(doc.status)}`}>
-                            {doc.status}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {featureCards.map(card => (
+                  <Card 
+                    key={card.id}
+                    className={`${card.color} transition-all duration-300 hover:shadow-lg cursor-pointer border-2 ${card.available ? 'hover:scale-105' : 'opacity-75'}`}
+                    onClick={() => handleFeatureCardClick(card)}
+                  >
+                    <CardContent className="p-8">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className={`w-14 h-14 ${card.color} rounded-2xl flex items-center justify-center border-2 ${card.id === 'summarization' ? 'border-brand-300' : 'border-gray-300'}`}>
+                          <card.icon className={`h-7 w-7 ${card.iconColor}`} />
+                        </div>
+                        {card.comingSoon && (
+                          <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs font-space-grotesk font-medium px-3 py-1 rounded-full">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Coming Soon
                           </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <CardDescription className="text-sm text-gray-600 line-clamp-2">
-                          {doc.summary}
-                        </CardDescription>
-                        
-                        <div className="space-y-2 text-xs text-gray-500">
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">Parties:</span>
-                            <span>{doc.parties}</span>
+                        )}
+                        {card.available && (
+                          <ArrowRight className={`h-5 w-5 ${card.iconColor} transition-transform duration-200 group-hover:translate-x-1`} />
+                        )}
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 font-space-grotesk">
+                        {card.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 font-space-grotesk font-normal leading-relaxed">
+                        {card.description}
+                      </p>
+                      
+                      {card.available && (
+                        <div className="mt-6 pt-4 border-t border-gray-200">
+                          <div className="flex items-center text-sm font-space-grotesk font-medium">
+                            <span className={card.iconColor}>Get Started</span>
+                            <ArrowRight className={`h-4 w-4 ml-2 ${card.iconColor}`} />
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">Jurisdiction:</span>
-                            <span>{doc.jurisdiction}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">Date:</span>
-                            <span>{doc.date}</span>
-                          </div>
                         </div>
-                        
-                        <div className="flex space-x-2 pt-2">
-                          <Button onClick={() => handleOpenDrafting(doc.id)} className="flex-1 h-8 text-xs">
-                            <Eye className="h-3 w-3 mr-1" />
-                            Open
-                          </Button>
-                          <Button variant="outline" className="h-8 px-2">
-                            <Download className="h-3 w-3" />
-                          </Button>
-                          <Button variant="outline" className="h-8 px-2 text-red-600 hover:text-red-700" onClick={e => {
-                      e.stopPropagation();
-                      handleDeleteDocument(doc.id);
-                    }}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>)}
-                </div> : <div className="text-center py-16">
-                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FileText className="h-12 w-12 text-gray-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No documents yet</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    Enter a prompt above to start drafting your first legal document with AI assistance.
-                  </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 max-w-md mx-auto">
-                    <h4 className="font-semibold text-blue-900 mb-2">💡 Quick Tip</h4>
-                    <p className="text-sm text-blue-800">
-                      Try prompts like "Draft an NDA for a tech startup" or "Create a service agreement for consulting work"
-                    </p>
-                  </div>
-                </div>}
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </main>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Home;

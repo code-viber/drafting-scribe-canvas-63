@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,15 +19,33 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'space-grotesk': ['Space Grotesk', 'sans-serif'],
+				'sans': ['Space Grotesk', 'sans-serif'],
+			},
 			colors: {
+				// Orange-based theme
+				brand: {
+					DEFAULT: '#F75F15',
+					50: '#FFF4F0',
+					100: '#FFE6D9',
+					200: '#FFCBB0',
+					300: '#FFA57A',
+					400: '#FF7F44',
+					500: '#F75F15',
+					600: '#E8460F',
+					700: '#C0350D',
+					800: '#9C2A0B',
+					900: '#7D2008',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#F75F15',
+					foreground: '#FFFFFF'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -89,6 +108,13 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			backdropBlur: {
+				xs: '2px',
+			},
+			boxShadow: {
+				'card': '0 2px 8px rgba(0,0,0,0.06)',
+				'card-hover': '0 4px 16px rgba(0,0,0,0.12)',
 			}
 		}
 	},
