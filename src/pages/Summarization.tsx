@@ -18,52 +18,12 @@ import ProcessingLoader from "../components/summarization/ProcessingLoader";
 
 type ProcessingStage = 'upload' | 'processing' | 'results';
 
-interface ProgressData {
-  status: string;
-  progress: number;
-  progress_percentage?: number;
-  message: string;
-  completed: boolean;
-  steps?: Array<{
-    step_name: string;
-    status: string;
-    progress_percentage?: number;
-    start_time?: string;
-    end_time?: string;
-    duration_ms?: number | null;
-    details?: string;
-  }>;
-}
-
-interface CompleteSummaryData {
-  summary_tab: any;
-  risk_analysis_tab: any;
-  financial_terms_tab: any;
-  quality_tab: any;
-  audit_trail_tab: any;
-}
-
-const API_BASE_URL = 'http://localhost:8005';
-
 const Summarization = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [stage, setStage] = useState<ProcessingStage>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState('summary');
-  const [requestId, setRequestId] = useState<string | null>(null);
-  const [progressData, setProgressData] = useState<ProgressData | null>(null);
-  const [completeSummaryData, setCompleteSummaryData] = useState<CompleteSummaryData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [componentKey, setComponentKey] = useState(Date.now()); // Force re-render key
-  
-  // Use refs to track polling state and prevent memory leaks
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isPollingRef = useRef(false);
-  const pollCountRef = useRef(0);
-  const hasCompletedRef = useRef(false);
-
   // Check if we're coming from home dashboard with existing summary data
   useEffect(() => {
     if (location.state?.showResults && location.state?.requestId) {
@@ -104,10 +64,9 @@ const Summarization = () => {
   }, []);
 
   const handleFileUpload = async (file: File) => {
+
     setUploadedFile(file);
     setStage('processing');
-    setError(null);
-    hasCompletedRef.current = false;
     
     // Start with initial progress state
     setProgressData({
@@ -164,28 +123,22 @@ const Summarization = () => {
         completed: false
       });
       
-      console.log('🚀 Step 2: Starting progress polling immediately...');
-      // Step 2: Start progress polling IMMEDIATELY in parallel
-      startProgressPolling(newRequestId);
-
-      // Save summarized document info to localStorage
+      // Save summarized document to localStorage
       const summarizedDocument = {
         id: Date.now(),
         title: `Summary - ${file.name}`,
-        summary: `AI-generated summary of ${file.name} - Processing...`,
-        parties: 'Processing...',
-        jurisdiction: 'Processing...',
+        summary: `AI-generated summary of ${file.name} including key insights, risk analysis, and financial terms...`,
+        parties: 'Extracted from document',
+        jurisdiction: 'As per document',
         date: new Date().toLocaleDateString(),
-        status: 'Processing',
+        status: 'Summarized',
         type: 'summary',
-        fileName: file.name,
-        requestId: newRequestId
+        fileName: file.name
       };
 
       const savedSummaries = JSON.parse(localStorage.getItem('savedSummaries') || '[]');
       savedSummaries.push(summarizedDocument);
       localStorage.setItem('savedSummaries', JSON.stringify(savedSummaries));
-
     } catch (error) {
       console.error('❌ Error in Step 1 (summarize-ui):', error);
       
@@ -448,22 +401,12 @@ const Summarization = () => {
   };
 
   const handleStartOver = () => {
-    console.log('🔄 Starting over - cleaning up state');
-    cleanup(); // Clean up any ongoing operations
     setStage('upload');
     setUploadedFile(null);
     setActiveTab('summary');
-    setRequestId(null);
-    setProgressData(null);
-    setCompleteSummaryData(null);
-    setError(null);
-    hasCompletedRef.current = false;
-    setComponentKey(Date.now()); // Force component re-render
   };
 
   const handleBackToHome = () => {
-    console.log('🏠 Navigating back to home - cleaning up');
-    cleanup(); // Clean up any ongoing operations
     navigate('/home');
   };
 
@@ -634,10 +577,7 @@ const Summarization = () => {
 
           {/* Right Sidebar - Enhanced Chat Panel */}
           <div className="lg:col-span-1">
-            <ChatPanel 
-              fileName={uploadedFile?.name || ''} 
-              requestId={requestId}
-            />
+            <ChatPanel fileName={uploadedFile?.name || ''} />
           </div>
         </div>
       </div>

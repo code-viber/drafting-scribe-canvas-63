@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Send, Bot, User, Share, Loader2, Sparkles, Eye } from "lucide-react";
@@ -10,14 +12,6 @@ import ReportPreview from "./ReportPreview";
 
 interface ChatPanelProps {
   fileName: string;
-  requestId?: string | null;
-}
-
-interface ChatMessage {
-  id: number;
-  type: 'bot' | 'user';
-  content: string;
-  timestamp: string;
 }
 
 const API_BASE_URL = 'http://localhost:8005';

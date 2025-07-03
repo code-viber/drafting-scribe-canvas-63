@@ -1,48 +1,17 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Calendar, Clock, Zap, Loader2, Info, TrendingUp, Target } from 'lucide-react';
 
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FileText, Calendar, User, Hash } from "lucide-react";
+
 interface SummaryTabProps {
-  requestId: string;
-  completeSummaryData?: any;
-}
-
-// Updated interface to match actual API response
-interface SummaryData {
-  document_title: string;
-  document_type: string;
-  file_name: string;
-  processing_date: string;
-  executive_summary: string;
-  key_highlights: string[];
-  document_metrics: {
-    estimated_pages: number;
-    word_count: number;
-    processing_time_seconds: number;
-    ai_model_used: string;
-    context_sources_used: number;
-  };
-  confidence_score: number;
-  context_sources_count: number;
-}
-
-// Interface for enhanced key clauses from improved_summary
-interface EnhancedKeyClause {
-  title: string;
-  content: string;
-  confidence_score: number;
-  supporting_quotes: string[];
-  risk_level: string;
-  metadata: {
-    title: string;
-    content: string;
-    risk_level: string;
-    quote: string;
-    market_comparison: string;
-    implementation: string;
-  };
+  fileName: string;
 }
 
 const API_BASE_URL = 'http://localhost:8005';
@@ -196,8 +165,6 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
           <p className="font-space-grotesk">No summary data available</p>
         </div>
       </Card>
-    );
-  }
 
   return (
     <div className="space-y-8 font-space-grotesk">
@@ -234,7 +201,6 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
           </div>
         </CardContent>
       </Card>
-
       {/* Executive Summary */}
       <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
         <CardHeader>
@@ -356,10 +322,9 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
-
+          </div>
+        </CardContent>
+      </Card>
       {/* Document Metrics */}
       {summaryData.document_metrics && (
         <Card className="bg-white/80 backdrop-blur-sm border-gray-100 rounded-2xl shadow-card">
@@ -415,9 +380,9 @@ const SummaryTab = ({ requestId, completeSummaryData }: SummaryTabProps) => {
                 <div className="text-sm text-gray-600 font-medium">Confidence</div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
